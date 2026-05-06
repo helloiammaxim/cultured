@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cultured · v2 Physarum</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Roboto+Flex:wdth,wght@25..151,100..900&family=Instrument+Serif:ital@0;1&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:none}
+body{background:#0f0f0d}
+body.lm{background:#e8e3d4}
+canvas{position:fixed;inset:0;display:block;pointer-events:none}
+#cG{z-index:1}
+#cP{z-index:2}
+#cA{z-index:3}
+#hit{position:fixed;inset:0;z-index:4;background:transparent}
+#cur{position:fixed;z-index:500;pointer-events:none;width:9px;height:9px;border-radius:50%;
+  background:rgba(255,255,255,.85);mix-blend-mode:difference;transform:translate(-50%,-50%);
+  transition:width .1s,height .1s}
+body.lm #cur{background:rgba(0,0,0,.6);mix-blend-mode:multiply}
+#cur.big{width:26px;height:26px}
+#top{position:fixed;top:0;left:0;right:0;z-index:400;height:44px;display:flex;align-items:center;padding:0 14px;gap:7px;pointer-events:none}
+.tb{pointer-events:all;border-radius:3px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.13em;
+  padding:5px 10px;cursor:pointer;transition:all .2s;text-transform:uppercase;backdrop-filter:blur(10px);
+  background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3)}
+.tb:hover,.tb.on{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.4)}
+body.lm .tb{background:rgba(255,255,255,.38);border-color:rgba(0,0,0,.1);color:rgba(0,0,0,.38)}
+body.lm .tb:hover,body.lm .tb.on{color:rgba(0,0,0,.8);border-color:rgba(0,0,0,.42)}
+#wm{font-family:'Unbounded',sans-serif;font-size:9px;font-weight:800;letter-spacing:.26em;
+  color:rgba(255,255,255,.1);text-transform:uppercase;pointer-events:none;
+  position:fixed;bottom:14px;left:16px;z-index:300}
+body.lm #wm{color:rgba(0,0,0,.12)}
+#credit{position:fixed;bottom:14px;right:16px;z-index:300;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
+  color:rgba(255,255,255,.18);text-decoration:none;text-transform:uppercase;
+  transition:color .2s}
+#credit:hover{color:rgba(255,255,255,.55)}
+body.lm #credit{color:rgba(0,0,0,.18)}
+body.lm #credit:hover{color:rgba(0,0,0,.55)}
+#palrow{display:flex;align-items:center;gap:6px;pointer-events:all}
+.psw{pointer-events:all;width:16px;height:16px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .13s,border-color .13s}
+.psw:hover{transform:scale(1.3)}
+.psw.on{border-color:rgba(255,255,255,.9);transform:scale(1.22)}
+body.lm .psw.on{border-color:rgba(0,0,0,.65)}
+#plbl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.19);text-transform:uppercase;white-space:nowrap;pointer-events:none}
+body.lm #plbl{color:rgba(0,0,0,.19)}
+#strip{position:fixed;bottom:0;left:0;right:0;z-index:400;height:48px;display:flex;align-items:center;padding:0 14px;gap:9px;
+  background:rgba(0,0,0,.28);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.06)}
+body.lm #strip{background:rgba(232,227,214,.72);border-top:1px solid rgba(0,0,0,.08)}
+#ti{flex:1;background:none;border:none;outline:none;font-family:'Unbounded',sans-serif;font-size:13px;color:rgba(255,255,255,.5);caret-color:#c8ff44;letter-spacing:.04em}
+#ti::placeholder{color:rgba(255,255,255,.17);font-size:9px;font-family:'Space Mono',monospace;letter-spacing:.11em}
+body.lm #ti{color:rgba(0,0,0,.45)}
+body.lm #ti::placeholder{color:rgba(0,0,0,.2)}
+.sp{width:1px;height:18px;background:rgba(255,255,255,.08);flex-shrink:0}
+body.lm .sp{background:rgba(0,0,0,.09)}
+#szs{-webkit-appearance:none;width:64px;height:2px;background:rgba(255,255,255,.12);border-radius:1px;outline:none;cursor:pointer;flex-shrink:0}
+#szs::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#c8ff44;cursor:pointer}
+#dns::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#ff9944;cursor:pointer}
+#wts{background:none;border:none;outline:none;color:rgba(255,255,255,.28);font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;flex-shrink:0}
+#wts option{background:#111;color:#fff}
+body.lm #wts{color:rgba(0,0,0,.35)}
+body.lm #wts option{background:#eee;color:#000}
+.btn{background:none;border:1px solid rgba(255,255,255,.1);border-radius:3px;color:rgba(255,255,255,.28);
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.11em;padding:5px 9px;cursor:pointer;transition:all .2s;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.btn:hover{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.35)}
+body.lm .btn{border-color:rgba(0,0,0,.1);color:rgba(0,0,0,.3)}
+#cOv{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .4s;display:block}
+#cOv.on{opacity:1}
+/* text placement plane */
+#tPlane{position:fixed;inset:0;z-index:6;pointer-events:none;overflow:hidden}
+#tPlane.active{pointer-events:all}
+#tBox{position:absolute;background:transparent;border:none;outline:none;
+  overflow:hidden;resize:none;font-family:'Roboto Flex',sans-serif;font-size:88px;font-weight:600;
+  color:rgba(255,255,255,.18);caret-color:rgba(160,255,60,.9);
+  line-height:1.15;text-align:center;padding:4px 8px;margin:0;
+  min-width:60px;width:max-content;display:none;cursor:text;
+  transform:translate(-50%,-50%);white-space:pre;background:transparent}
+body.lm #tBox{color:rgba(0,0,0,.14);caret-color:rgba(0,120,60,.9)}
+/* panel drag handle strip at top of tPanel */
+#panelHandle{cursor:grab;display:flex;justify-content:center;align-items:center;
+  padding:4px 0 6px;margin:-4px -4px 2px;border-radius:5px 5px 0 0}
+#panelHandle:active{cursor:grabbing}
+#panelHandle-bar{width:32px;height:3px;border-radius:2px;
+  background:rgba(255,255,255,.22);transition:background .15s}
+#panelHandle:hover #panelHandle-bar{background:rgba(255,255,255,.5)}
+body.lm #panelHandle-bar{background:rgba(0,0,0,.18)}
+body.lm #panelHandle:hover #panelHandle-bar{background:rgba(0,0,0,.4)}
+/* floating text control panel */
+#tPanel{position:fixed;z-index:7;display:none;pointer-events:all;
+  background:rgba(10,10,8,.72);border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;padding:8px 12px;backdrop-filter:blur(18px);
+  display:none;flex-direction:column;gap:6px;min-width:220px}
+#tPanel.show{display:flex}
+body.lm #tPanel{background:rgba(234,229,216,.82);border-color:rgba(0,0,0,.1)}
+#tPanel .row{display:flex;align-items:center;gap:8px}
+#tPanel .lbl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
+  color:rgba(255,255,255,.35);text-transform:uppercase;white-space:nowrap;width:28px;flex-shrink:0}
+body.lm #tPanel .lbl{color:rgba(0,0,0,.35)}
+#tPanel input[type=range]{-webkit-appearance:none;height:2px;flex:1;
+  background:rgba(255,255,255,.15);border-radius:1px;outline:none;cursor:pointer}
+#tPanel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
+  width:10px;height:10px;border-radius:50%;cursor:pointer}
+#szs::-webkit-slider-thumb{background:#c8ff44}
+#tSzs::-webkit-slider-thumb{background:#c8ff44}
+#tWgt::-webkit-slider-thumb{background:#88aaff}
+#tDns::-webkit-slider-thumb{background:#ff9944}
+#tRnd::-webkit-slider-thumb{background:#cc88ff}
+body.lm #tPanel input[type=range]{background:rgba(0,0,0,.15)}
+#szVal,#wdthVal,#slantVal{font-family:'Space Mono',monospace;font-size:8px;
+  color:rgba(255,255,255,.45);width:30px;text-align:right;flex-shrink:0;letter-spacing:.04em}
+body.lm #szVal,body.lm #wdthVal,body.lm #slantVal{color:rgba(0,0,0,.38)}
+#tPanel .tbtn{background:none;border:1px solid rgba(255,255,255,.12);border-radius:3px;
+  color:rgba(255,255,255,.4);font-family:'Space Mono',monospace;font-size:9px;
+  letter-spacing:.1em;padding:4px 8px;cursor:pointer;transition:all .15s;
+  text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+#tPanel .tbtn:hover,#tPanel .tbtn.on{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.4)}
+body.lm #tPanel .tbtn{border-color:rgba(0,0,0,.12);color:rgba(0,0,0,.35)}
+body.lm #tPanel .tbtn.on,body.lm #tPanel .tbtn:hover{color:rgba(0,0,0,.8);border-color:rgba(0,0,0,.5)}
+#tPanel .bloom-btn{flex:1;background:rgba(160,255,60,.12);border:1px solid rgba(160,255,60,.3);
+  border-radius:3px;color:rgba(160,255,60,.8);font-family:'Space Mono',monospace;font-size:9px;
+  letter-spacing:.1em;padding:5px 8px;cursor:pointer;transition:all .15s;text-transform:uppercase}
+#tPanel .bloom-btn:hover{background:rgba(160,255,60,.22);color:rgba(160,255,60,1)}
+body.lm #tPanel .bloom-btn{background:rgba(0,120,40,.1);border-color:rgba(0,120,40,.3);color:rgba(0,100,30,.8)}
+/* custom color swatch */
+#cswWrap{pointer-events:all;position:relative;width:16px;height:16px;border-radius:50%;
+  border:2px dashed rgba(255,255,255,.38);cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:rgba(255,255,255,.5);transition:border-color .12s,transform .12s;
+  overflow:hidden}
+#cswWrap:hover{border-color:rgba(255,255,255,.7);transform:scale(1.3)}
+#cswWrap.on{border-style:solid;border-color:rgba(255,255,255,.92)}
+body.lm #cswWrap{border-color:rgba(0,0,0,.35);color:rgba(0,0,0,.5)}
+body.lm #cswWrap.on{border-color:rgba(0,0,0,.7)}
+#colorInp{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border-radius:50%}
+/* export dropdown */
+#expW{position:relative;pointer-events:all}
+#expM{display:none;position:absolute;top:36px;left:0;z-index:700;
+  background:rgba(12,12,10,.95);border:1px solid rgba(255,255,255,.12);
+  border-radius:3px;padding:3px;min-width:148px;backdrop-filter:blur(14px)}
+#expM.open{display:block}
+body.lm #expM{background:rgba(234,229,216,.97);border-color:rgba(0,0,0,.1)}
+.ei{display:block;width:100%;text-align:left;background:none;border:none;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;
+  color:rgba(255,255,255,.5);padding:6px 10px;cursor:pointer;text-transform:uppercase;transition:color .15s}
+.ei:hover{color:rgba(255,255,255,.9)}
+body.lm .ei{color:rgba(0,0,0,.45)}
+body.lm .ei:hover{color:rgba(0,0,0,.88)}
+</style>
+</head>
+<body>
+<canvas id="cG"></canvas>
+<canvas id="cP"></canvas>
+<canvas id="cA"></canvas>
+<canvas id="cOv"></canvas>
+<div id="tPlane">
+  <textarea id="tBox" rows="1" spellcheck="false" autocomplete="off"></textarea>
+</div>
+<!-- floating text control panel — shown when text mode active -->
+<div id="tPanel">
+  <div id="panelHandle"><div id="panelHandle-bar"></div></div>
+  <div class="row">
+    <span class="lbl">size</span>
+    <input type="range" id="tSzs" min="18" max="1200" value="88"/>
+    <span id="szVal">88px</span>
+  </div>
+  <div class="row">
+    <span class="lbl">weight</span>
+    <input type="range" id="tWgt" min="100" max="900" value="600" step="1"/>
+  </div>
+  <div class="row" id="rowWdth">
+    <span class="lbl">width</span>
+    <input type="range" id="tWdth" min="25" max="151" value="100"/>
+    <span id="wdthVal">100</span>
+  </div>
+  <div class="row" id="rowSlant">
+    <span class="lbl" id="slantLbl">slant</span>
+    <input type="range" id="tSlant" min="-10" max="0" value="0"/>
+    <span id="slantVal">0°</span>
+  </div>
+  <div class="row" id="rowItalic" style="display:none">
+    <span class="lbl">style</span>
+    <button class="tbtn" id="tItalic">ITALIC</button>
+  </div>
+  <div class="row">
+    <button class="tbtn" id="tFontSans">SANS</button>
+    <button class="tbtn" id="tFontSerif">SERIF</button>
+    <div style="flex:1"></div>
+    <button class="tbtn" id="tClose">ESC</button>
+  </div>
+  <div class="row">
+    <span class="lbl">density</span>
+    <input type="range" id="tDns" min="1" max="5" value="2" step="1"/>
+  </div>
+  <div class="row">
+    <span class="lbl">chaos</span>
+    <input type="range" id="tRnd" min="0" max="10" value="5" step="1"/>
+  </div>
+  <div class="row">
+    <button class="bloom-btn" id="tBloom">BLOOM — ⌘↵</button>
+  </div>
+</div>
+<div id="hit"></div>
+<div id="cur"></div>
+<div id="top">
+  <button class="tb" id="bm">LIGHT</button>
+  <button class="tb" id="bc">CLEAR</button>
+  <button class="tb" id="btxt">TEXT ✦</button>
+  <div id="expW">
+    <button class="tb" id="bexp">EXPORT ▾</button>
+    <div id="expM">
+      <div style="padding:4px 10px 2px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase">size</div>
+      <div style="display:flex;gap:4px;padding:2px 6px 6px">
+        <button class="ei" id="eSzScr" style="flex:1;text-align:center;padding:5px 4px;border:1px solid rgba(255,255,255,.15);border-radius:3px" title="screen size">SCR</button>
+        <button class="ei" id="eSz2k"  style="flex:1;text-align:center;padding:5px 4px;border:1px solid rgba(255,255,255,.08);border-radius:3px" title="2048px longest side">2K</button>
+        <button class="ei" id="eSz4k"  style="flex:1;text-align:center;padding:5px 4px;border:1px solid rgba(255,255,255,.08);border-radius:3px" title="4096px longest side">4K</button>
+      </div>
+      <div style="padding:0 6px 3px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase">background</div>
+      <button class="ei" id="eBg">with background</button>
+      <button class="ei" id="eTr">transparent</button>
+    </div>
+  </div>
+  <div id="palrow" style="margin-left:auto">
+    <span id="plbl">Physarum ·</span>
+    <div id="cswWrap" title="custom color">+<input type="color" id="colorInp" value="#a8e000"/></div>
+  </div>
+</div>
+<span id="wm">CULTURED</span>
+<a id="credit" href="https://www.instagram.com/helloiammaxim/" target="_blank" rel="noopener">@helloiammaxim</a>
+<div id="strip" style="display:none"></div>
+<script>
+'use strict';
+const cvG=document.getElementById('cG'),ctxG=cvG.getContext('2d');
+const cvP=document.getElementById('cP'),ctxP=cvP.getContext('2d');
+const cvA=document.getElementById('cA'),ctxA=cvA.getContext('2d');
+const cvOv=document.getElementById('cOv'),ctxOv=cvOv.getContext('2d');
+const hitEl=document.getElementById('hit');
+const cur=document.getElementById('cur');
+// ti removed — text entered via TEXT tool
+const szs=document.getElementById('tSzs'); // panel size slider
+// wts removed — weight via panel slider
+let W=0,H=0,light=false,frameN=0;
+let mouseX=-9999,mouseY=-9999;
+let isDown=false,prevX=0,prevY=0,downT=0,lastMoveT=0;
+let overlayOn=false,ghostText='';
+let customColor=null;   // {r,g,b} from color picker, or null to use palette
+let textMode=false;
+let useSerif=false;
+let tBoxX=0,tBoxY=0,tDragging=false,tDragOX=0,tDragOY=0;
+
+// trail grid
+const SC=3;let TW=0,TH=0,trail=null,trailTmp=null;
+function initTrail(){TW=Math.ceil(W/SC);TH=Math.ceil(H/SC);trail=new Float32Array(TW*TH);trailTmp=new Float32Array(TW*TH);}
+const tI=(x,y)=>Math.max(0,Math.min(TH-1,y|0))*TW+Math.max(0,Math.min(TW-1,x|0));
+function senseTrail(wx,wy){const tx=wx/SC,ty=wy/SC,ix=tx|0,iy=ty|0,fx=tx-ix,fy=ty-iy;
+  return (trail[tI(ix,iy)]||0)*(1-fx)*(1-fy)+(trail[tI(ix+1,iy)]||0)*fx*(1-fy)
+        +(trail[tI(ix,iy+1)]||0)*(1-fx)*fy+(trail[tI(ix+1,iy+1)]||0)*fx*fy;}
+function depTrail(wx,wy,v){const i=tI((wx/SC)|0,(wy/SC)|0);if(i<trail.length)trail[i]=Math.min(0.6,trail[i]+v);}
+function diffuseTrail(){const d=0.86;   // aggressive decay keeps gradients sharp
+  for(let y=1;y<TH-1;y++)for(let x=1;x<TW-1;x++){const i=y*TW+x;
+    const s=trail[i]*4+trail[i-1]+trail[i+1]+trail[(y-1)*TW+x]+trail[(y+1)*TW+x]
+            +(trail[(y-1)*TW+x-1]+trail[(y-1)*TW+x+1]+trail[(y+1)*TW+x-1]+trail[(y+1)*TW+x+1])*.5;
+    trailTmp[i]=(s/8)*d;}
+  const t=trail;trail=trailTmp;trailTmp=t;}
+
+// substrate
+let subMap=null;
+function initSub(){subMap=new Float32Array(TW*TH);}
+function paintSub(wx,wy,wr,v=1){const tx=(wx/SC)|0,ty=(wy/SC)|0,tr=Math.ceil(wr/SC)+1;
+  for(let dy=-tr;dy<=tr;dy++)for(let dx=-tr;dx<=tr;dx++){const d=Math.sqrt(dx*dx+dy*dy);if(d>tr)continue;
+    const i=tI(tx+dx,ty+dy);if(i<subMap.length)subMap[i]=Math.min(1,subMap[i]+v*Math.pow(1-d/tr,1.5));}}
+function paintSubLine(x0,y0,x1,y1,r,v=1){const d=Math.hypot(x1-x0,y1-y0),n=Math.max(1,Math.ceil(d/(SC*1.4)));
+  for(let i=0;i<=n;i++){const t=i/n;paintSub(x0+(x1-x0)*t,y0+(y1-y0)*t,r,v);}}
+function senseSub(wx,wy){const tx=wx/SC,ty=wy/SC,ix=tx|0,iy=ty|0,fx=tx-ix,fy=ty-iy;
+  return (subMap[tI(ix,iy)]||0)*(1-fx)*(1-fy)+(subMap[tI(ix+1,iy)]||0)*fx*(1-fy)
+        +(subMap[tI(ix,iy+1)]||0)*(1-fx)*fy+(subMap[tI(ix+1,iy+1)]||0)*fx*fy;}
+function decaySub(){for(let i=0;i<subMap.length;i++)subMap[i]*=0.9997;}
+
+// palettes
+const PALS=[
+  {name:'Physarum',  b:{r:228,g:210,b:18}, a:[{r:255,g:232,b:55},{r:195,g:165,b:0},{r:240,g:185,b:5}]},
+  {name:'Penicil.', b:{r:55,g:190,b:72},  a:[{r:95,g:225,b:105},{r:28,g:150,b:52},{r:155,g:230,b:110}]},
+  {name:'Aspergil.',b:{r:238,g:112,b:8},  a:[{r:255,g:155,b:38},{r:195,g:72,b:0},{r:255,g:190,b:65}]},
+  {name:'Fuligo',   b:{r:215,g:188,b:52}, a:[{r:238,g:212,b:95},{r:175,g:150,b:18},{r:248,g:225,b:125}]},
+  {name:'Trichia',  b:{r:255,g:72,b:22},  a:[{r:255,g:125,b:52},{r:215,g:42,b:8},{r:255,g:155,b:72}]},
+  {name:'Stemon.',  b:{r:152,g:32,b:115}, a:[{r:195,g:72,b:155},{r:115,g:18,b:75},{r:215,g:115,b:175}]},
+  {name:'Lycogala', b:{r:225,g:72,b:95},  a:[{r:255,g:115,b:125},{r:185,g:42,b:65},{r:255,g:155,b:155}]},
+  {name:'Leocarp.', b:{r:255,g:195,b:0},  a:[{r:255,g:222,b:55},{r:215,g:155,b:0},{r:255,g:238,b:95}]},
+  {name:'Chromist.',b:{r:38,g:142,b:232}, a:[{r:78,g:175,b:255},{r:15,g:98,b:192},{r:132,g:205,b:255}]},
+  {name:'Lacrymar.',b:{r:92,g:58,b:212},  a:[{r:135,g:102,b:252},{r:62,g:32,b:175},{r:175,g:152,b:252}]},
+];
+let palIdx=0;
+const activePal=()=>PALS[palIdx];
+function pickCol(){
+  if(customColor){
+    const j=()=>~~((Math.random()-.5)*36);
+    return{r:Math.max(0,Math.min(255,customColor.r+j())),
+           g:Math.max(0,Math.min(255,customColor.g+j())),
+           b:Math.max(0,Math.min(255,customColor.b+j()))};
+  }
+  const p=activePal();
+  const rnd=Math.random();
+  let c;
+  if(rnd<0.62)       c={...p.b};               // base colour
+  else if(rnd<0.88)  c={...p.a[~~(Math.random()*p.a.length)]}; // palette accent
+  else {
+    // random hue-shifted variant: shift one channel strongly
+    const base={...p.b};
+    const shift=~~((Math.random()-.5)*60);
+    const ch=~~(Math.random()*3);
+    if(ch===0) base.r=Math.max(0,Math.min(255,base.r+shift));
+    else if(ch===1) base.g=Math.max(0,Math.min(255,base.g+shift));
+    else base.b=Math.max(0,Math.min(255,base.b+shift));
+    c=base;
+  }
+  // global jitter on all channels ±22
+  const j=()=>~~((Math.random()-.5)*22);
+  return {r:Math.max(0,Math.min(255,c.r+j())),g:Math.max(0,Math.min(255,c.g+j())),b:Math.max(0,Math.min(255,c.b+j()))};
+}
+
+
+// ─────────────────────────────────────────────────────────────────
+// BLOB COLONY  — organic deformed blob painted to cP
+// Spawned on slow strokes; grows over ~40-90 frames then stops.
+// No separate canvas needed — paint directly onto cP incrementally.
+// ─────────────────────────────────────────────────────────────────
+function fbm(x,y,ph){
+  return Math.sin(x*2.1+ph)*Math.cos(y*1.7+ph*.9)*.38
+        +Math.sin(x*.9+y*1.3+ph*1.1)*.26
+        +Math.cos(x*3.1-y*2.0+ph*.55)*.18
+        +Math.sin(x*1.6+y*.85-ph*.7)*.12;
+}
+
+function blobPath(ctx,cx,cy,r,ph,pts){
+  ctx.beginPath();
+  for(let i=0;i<=pts;i++){
+    const a=(i/pts)*Math.PI*2;
+    const nx=Math.cos(a)*.5+.5,ny=Math.sin(a)*.5+.5;
+    const rr=r*(1+fbm(nx*3.0,ny*3.0,ph)*.42);
+    i===0?ctx.moveTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr)
+         :ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);
+  }
+  ctx.closePath();
+}
+
+let blobs=[];
+const MAX_BLOBS=80;
+
+class Blob{
+  constructor(cx,cy,col,energy){
+    this.cx=cx; this.cy=cy; this.col=col;
+    this.energy=energy;
+    this.phase=Math.random()*Math.PI*2;
+    this.swayPh=Math.random()*Math.PI*2;
+    this.r=0;
+    this.maxR=6+energy*18+Math.random()*10;  // smaller blobs on text for readability
+    this.age=0;
+    this.maxAge=Math.floor((50+Math.random()*80)*energy);
+    this.alive=true;
+    // how many spore particles to emit per frame while growing
+    this.emitRate=Math.floor(12+energy*9);  // fewer particles = less occlusion over text
+    // satellites — small child blobs that appear as colony spreads
+    this.sats=[];
+    this.satTimer=~~(12+Math.random()*20);
+    this.maxSats=~~(1+energy*2.2);
+    // concentric ring radii — painted once when r crosses each threshold
+    this.ringsDone=new Set();
+    // random start delay — each blob begins growing at a different time
+    // so a field of blobs from text doesn't all pop simultaneously
+    this.startDelay=~~(Math.random()*40);  // frames to wait before growing
+    this.swayAmp=0;
+  }
+
+  // ── Emit N spore particles into the colony area ──────────────────
+  // Each particle is a tiny arc of radius 0.6–3px placed at a
+  // noise-displaced position within the colony radius.
+  // Density falls off from centre; edge gets fuzzier particles.
+  _emitParticles(cx,cy,r,col,n){
+    const {r:cr,g:cg,b:cb}=col;
+    for(let i=0;i<n;i++){
+      // polar position: biased toward outer 60% for powdery edge look
+      const u=Math.random(), v=Math.random();
+      const d=r*(0.08+Math.pow(u,0.55)*0.94); // push toward rim
+      const ang=v*Math.PI*2;
+      // noise warp the position
+      const nx=Math.cos(ang)*0.5+0.5, ny=Math.sin(ang)*0.5+0.5;
+      const warp=fbm(nx*4.2+this.phase, ny*4.2, this.phase*0.7)*r*0.32;
+      const warpAng=ang+warp*0.4;
+      const wx=cx+Math.cos(warpAng)*(d+warp*0.5);
+      const wy=cy+Math.sin(warpAng)*(d+warp*0.5);
+      // particle radius: smaller at edge (spore texture), larger in centre (body)
+      const edgeness=d/r; // 0=centre, 1=edge
+      const pr=edgeness>0.7
+        ? 0.4+Math.random()*1.2          // fuzzy edge: tiny dots
+        : 0.8+Math.random()*2.4;         // body: slightly larger stipples
+      // colour: brighter in centre, darker/muted at edge
+      const bright=Math.max(0,(1-edgeness*1.1));
+      const boost=bright*55;
+      const dim=(1-bright)*30;
+      const rr=Math.min(255,(cr+boost-dim+((Math.random()-.5)*18))|0);
+      const gg=Math.min(255,(cg+boost-dim+((Math.random()-.5)*18))|0);
+      const bb=Math.min(255,(cb+boost-dim+((Math.random()-.5)*18))|0);
+      // alpha: denser centre, sparser edge — and random jitter for texture
+      const a=(0.55+bright*0.35)*(0.5+Math.random()*0.5);
+      ctxP.globalAlpha=a;
+      ctxP.fillStyle=`rgb(${rr},${gg},${bb})`;
+      ctxP.beginPath();
+      ctxP.arc(wx,wy,pr,0,Math.PI*2);
+      ctxP.fill();
+    }
+  }
+
+  // ── Paint concentric ring once when colony crosses a radius threshold ──
+  // This adds the distinctive ring texture of real mold colonies.
+  _paintRing(cx,cy,r,col){
+    const {r:cr,g:cg,b:cb}=col;
+    // ring is a thin band of denser particles at this radius
+    const n=Math.floor(r*2.8);
+    for(let i=0;i<n;i++){
+      const ang=(i/n)*Math.PI*2+(Math.random()-.5)*0.15;
+      const warp=fbm(Math.cos(ang)*2+this.phase,Math.sin(ang)*2,this.phase)*r*0.1;
+      const d=r*(0.88+warp*0.08);
+      const wx=cx+Math.cos(ang)*d, wy=cy+Math.sin(ang)*d;
+      const dark=(Math.random()<0.5);
+      const rr=dark?Math.max(0,(cr-45)|0):Math.min(255,(cr+20)|0);
+      const gg=dark?Math.max(0,(cg-45)|0):Math.min(255,(cg+20)|0);
+      const bb=dark?Math.max(0,(cb-45)|0):Math.min(255,(cb+20)|0);
+      ctxP.globalAlpha=0.18+Math.random()*0.22;
+      ctxP.fillStyle=`rgb(${rr},${gg},${bb})`;
+      ctxP.beginPath();
+      ctxP.arc(wx,wy,0.5+Math.random()*1.0,0,Math.PI*2);
+      ctxP.fill();
+    }
+  }
+
+  update(){
+    if(!this.alive)return;
+    if(this.startDelay>0){this.startDelay--;return;}  // wait before starting
+    this.age++;
+    if(this.age>this.maxAge){this.alive=false;return;}
+
+    // grow radius
+    const growFrac=Math.min(1,this.age/this.maxAge);
+    // ease-out growth: fast then slows
+    this.r=this.maxR*(1-Math.pow(1-growFrac,2.2));
+
+    if(this.r>1){
+      // emit spore particles this frame
+      this._emitParticles(this.cx,this.cy,this.r,this.col,this.emitRate);
+
+      // concentric rings at 30%, 55%, 75%, 90% of maxR
+      for(const frac of [0.3,0.55,0.75,0.9]){
+        const key=frac;
+        if(!this.ringsDone.has(key)&&this.r>=this.maxR*frac){
+          this._paintRing(this.cx,this.cy,this.r*frac,this.col);
+          this.ringsDone.add(key);
+        }
+      }
+    }
+
+    // satellite sub-colonies
+    this.satTimer--;
+    if(this.satTimer<=0&&this.sats.length<this.maxSats&&this.r>10){
+      const ang=Math.random()*Math.PI*2;
+      const dist=this.r*(0.5+Math.random()*0.7);
+      const sc=Math.random()<0.5?{...activePal().b}:{...activePal().a[~~(Math.random()*activePal().a.length)]};
+      this.sats.push({
+        cx:this.cx+Math.cos(ang)*dist,
+        cy:this.cy+Math.sin(ang)*dist,
+        maxR:this.maxR*(0.18+Math.random()*0.35),
+        r:0, age:0,
+        maxAge:Math.floor(this.maxAge*(0.5+Math.random()*0.4)),
+        col:sc, ph:Math.random()*Math.PI*2,
+        ringsDone:new Set(),
+        emitRate:Math.floor(this.emitRate*0.55),
+      });
+      this.satTimer=~~(10+Math.random()*22);
+    }
+    for(const s of this.sats){
+      s.age++;
+      if(s.age>s.maxAge) continue;
+      const sf=Math.min(1,s.age/s.maxAge);
+      s.r=s.maxR*(1-Math.pow(1-sf,2.2));
+      if(s.r>1){
+        this._emitParticles(s.cx,s.cy,s.r,s.col,s.emitRate);
+        for(const frac of [0.45,0.78]){
+          if(!s.ringsDone.has(frac)&&s.r>=s.maxR*frac){
+            this._paintRing(s.cx,s.cy,s.r*frac,s.col);
+            s.ringsDone.add(frac);
+          }
+        }
+      }
+    }
+  }
+
+  // ── Animate: soft pulsing stipple spray on cA (never fills solid) ────────
+  // Each breath frame emits a handful of dim particles at the colony edge
+  // giving a shimmering alive quality without any filled shapes.
+  drawBreath(t){
+    if(this.r<3)return;
+    const c=this.col;
+    // pulse amplitude — gentle breathing
+    const pulse=Math.sin(t*1.05+this.swayPh);
+    const breathR=this.r*(1.02+pulse*0.022);
+    // emit a few edge particles on cA for shimmer
+    const nBreath=this.alive?6:3;
+    for(let i=0;i<nBreath;i++){
+      const ang=Math.random()*Math.PI*2;
+      const edgeFrac=0.75+Math.random()*0.35;
+      const warp=fbm(Math.cos(ang)*2+t*0.3,Math.sin(ang)*2,this.phase)*breathR*0.18;
+      const d=breathR*edgeFrac+warp;
+      const wx=this.cx+Math.cos(ang)*d, wy=this.cy+Math.sin(ang)*d;
+      const pr=0.5+Math.random()*1.4;
+      const bright=0.3+Math.abs(pulse)*0.4;
+      ctxA.globalAlpha=(this.alive?0.28:0.14)*bright;
+      ctxA.fillStyle=`rgb(${Math.min(255,(c.r+bright*50)|0)},${Math.min(255,(c.g+bright*50)|0)},${Math.min(255,(c.b+bright*50)|0)})`;
+      ctxA.beginPath();ctxA.arc(wx,wy,pr,0,Math.PI*2);ctxA.fill();
+    }
+    // satellite shimmer
+    for(const s of this.sats){
+      if(s.r<3)continue;
+      const sc=s.col;
+      const sp=Math.sin(t*0.9+s.ph);
+      for(let i=0;i<(this.alive?3:1);i++){
+        const ang=Math.random()*Math.PI*2;
+        const d=s.r*(0.8+Math.random()*0.28);
+        ctxA.globalAlpha=0.18*(0.4+Math.abs(sp)*0.6);
+        ctxA.fillStyle=`rgb(${Math.min(255,(sc.r+30)|0)},${Math.min(255,(sc.g+30)|0)},${Math.min(255,(sc.b+30)|0)})`;
+        ctxA.beginPath();ctxA.arc(s.cx+Math.cos(ang)*d,s.cy+Math.sin(ang)*d,0.5+Math.random()*1.2,0,Math.PI*2);ctxA.fill();
+      }
+    }
+    // mouse proximity reaction: edge particles pulled toward cursor
+    const dm=Math.hypot(mouseX-this.cx,mouseY-this.cy);
+    if(dm<this.r*2.2&&dm>0&&!isDown){
+      const pull=Math.max(0,1-dm/(this.r*2.2));
+      const mAng=Math.atan2(mouseY-this.cy,mouseX-this.cx);
+      const n=Math.floor(pull*8);
+      for(let i=0;i<n;i++){
+        const spread=(Math.random()-.5)*1.2;
+        const d=this.r*(0.85+Math.random()*0.2);
+        const ang=mAng+spread;
+        const ox=Math.cos(ang)*d*0.18*pull, oy=Math.sin(ang)*d*0.18*pull;
+        ctxA.globalAlpha=pull*0.22;
+        ctxA.fillStyle=`rgb(${Math.min(255,(c.r+70)|0)},${Math.min(255,(c.g+70)|0)},${Math.min(255,(c.b+70)|0)})`;
+        ctxA.beginPath();
+        ctxA.arc(this.cx+Math.cos(ang)*d+ox,this.cy+Math.sin(ang)*d+oy,0.7+Math.random()*1.5,0,Math.PI*2);
+        ctxA.fill();
+      }
+    }
+  }
+}
+
+function spawnBlob(x,y,energy){
+  if(blobs.length>=MAX_BLOBS)return;
+  blobs.push(new Blob(x,y,pickCol(),energy));
+}
+
+// agents — tuned to IAAC Physarum algorithm
+// SA=45° sensor spread, SDIST=9 (tight sensing), RA=45° rotation step
+const SA=45*Math.PI/180,SDIST=9,RA=45*Math.PI/180;
+const MAX_AG=4500;
+let agents=[],anyAlive=false;
+
+class Agent{
+  constructor(x,y,ang,col,gen,energy,_sw,_maxDrift){
+    this.x=x;this.y=y;this.px=x;this.py=y;
+    this.ang=ang;this.col=col;this.gen=gen;
+    this.age=0;
+    this.maxAge=Math.max(22,(28+Math.random()*75)*energy*Math.pow(0.70,gen));
+    this.speed=0.65+Math.random()*0.55;
+    this.sw=Math.max(0.25,(_sw||0.8)-gen*0.22+Math.random()*0.2);
+    this.depT=0.04+Math.random()*0.03;
+    this.dead=false;
+    this.bx=x;this.by=y;
+    // maxDrift: explicit override OR derived from energy
+    this.maxDrift=_maxDrift!==undefined
+      ? Math.max(4, _maxDrift - gen*2.5 + Math.random()*3)
+      : Math.max(8,(10+Math.random()*12)*energy-gen*3.0);
+    this.nextBr=~~(10+Math.random()*24);
+    this.brN=0;
+    this.maxBr=gen===0?4:gen===1?3:gen===2?2:1;
+    this.bright=0;
+    const j=(Math.random()-.5)*16;
+    this.r=Math.max(0,Math.min(255,(col.r+j)|0));
+    this.g=Math.max(0,Math.min(255,(col.g+j)|0));
+    this.b=Math.max(0,Math.min(255,(col.b+j)|0));
+  }
+  sense(off){const a=this.ang+off,sx=this.x+Math.cos(a)*SDIST,sy=this.y+Math.sin(a)*SDIST;
+    return senseTrail(sx,sy)+senseSub(sx,sy)*3.0;}
+  step(born){
+    if(this.dead)return;
+    this.age++;
+    const lf=this.age/this.maxAge;
+    if(lf>=1){this.dead=true;return;}
+    const alpha=Math.min(1,lf*14)*Math.min(1,(1-lf)*9);
+    if(alpha<0.004){this.dead=true;return;}
+    const onS=senseSub(this.x,this.y)>0.05;
+    this.bright+=((onS?1:0.3)-this.bright)*0.14;
+    const F=this.sense(0),L=this.sense(-SA),R=this.sense(SA);
+    if(F>=L&&F>=R)this.ang+=(Math.random()-.5)*0.12;
+    else if(F<L&&F<R)this.ang+=(Math.random()<.5?-1:1)*RA*(0.6+Math.random()*0.4);
+    else if(L>R)this.ang-=RA*(0.4+Math.random()*0.5);
+    else this.ang+=RA*(0.4+Math.random()*0.5);
+    this.ang+=(Math.random()-.5)*(0.07+this.gen*0.055);
+    this.px=this.x;this.py=this.y;
+    this.x+=Math.cos(this.ang)*this.speed;
+    this.y+=Math.sin(this.ang)*this.speed;
+    if(this.x<0)this.x+=W;else if(this.x>=W)this.x-=W;
+    if(this.y<0)this.y+=H;else if(this.y>=H)this.y-=H;
+    if(Math.hypot(this.x-this.bx,this.y-this.by)>this.maxDrift){this.dead=true;return;}
+    depTrail(this.x,this.y,this.depT*(onS?1.2:1));
+    const b2=this.bright;
+    const rr=Math.min(255,(this.r+b2*58)|0),gg=Math.min(255,(this.g+b2*58)|0),bb=Math.min(255,(this.b+b2*58)|0);
+    // paint alpha is fixed — not affected by accumulated substrate
+    // (substrate only steers agents, doesn't inflate visual weight)
+    const lw=this.sw*(0.5+0.5*(1-lf)),pa=alpha*0.72;
+    ctxP.globalAlpha=pa;
+    ctxP.strokeStyle=`rgb(${rr},${gg},${bb})`;
+    ctxP.lineWidth=lw;ctxP.lineCap='round';
+    ctxP.beginPath();ctxP.moveTo(this.px,this.py);ctxP.lineTo(this.x,this.y);ctxP.stroke();
+    if(onS&&this.gen===0){
+      ctxP.globalCompositeOperation='lighter';
+      ctxP.globalAlpha=pa*0.06;
+      ctxP.lineWidth=lw*1.8;
+      ctxP.beginPath();ctxP.moveTo(this.px,this.py);ctxP.lineTo(this.x,this.y);ctxP.stroke();
+      ctxP.globalCompositeOperation='source-over';
+    }
+    if(this.age%18===0){ctxP.globalAlpha=pa*0.9;ctxP.fillStyle=`rgb(${rr},${gg},${bb})`;
+      ctxP.beginPath();ctxP.arc(this.x,this.y,lw*1.8+(onS?1:0),0,Math.PI*2);ctxP.fill();}
+    ctxA.globalAlpha=alpha*(onS?0.55:0.38);ctxA.fillStyle=`rgb(${rr},${gg},${bb})`;
+    ctxA.beginPath();ctxA.arc(this.x,this.y,lw*1.3,0,Math.PI*2);ctxA.fill();
+    this.nextBr--;
+    if(this.nextBr<=0&&this.brN<this.maxBr&&agents.length+born.length<MAX_AG&&this.gen<7){
+      const sp=Math.PI/6+Math.random()*Math.PI/4;
+      born.push(new Agent(this.x,this.y,this.ang+sp*(Math.random()<.5?1:-1),this.col,this.gen+1,(1-lf)*0.88,this.sw*0.78));
+      ctxP.globalAlpha=pa*0.9;ctxP.fillStyle=`rgb(${rr},${gg},${bb})`;
+      ctxP.beginPath();ctxP.arc(this.x,this.y,lw*2.0,0,Math.PI*2);ctxP.fill();
+      this.brN++;this.nextBr=~~(14+Math.random()*44);}
+  }
+}
+
+function spawnAt(x,y,n,energy,sw,maxDrift){
+  const col=pickCol(),count=Math.min(n,MAX_AG-agents.length);
+  for(let i=0;i<count;i++)
+    agents.push(new Agent(x+(Math.random()-.5)*4,y+(Math.random()-.5)*4,Math.random()*Math.PI*2,col,0,energy,sw,maxDrift));
+}
+
+// hold
+let holdIv=null,holdX=0,holdY=0;
+function startHold(x,y){holdX=x;holdY=y;
+  holdIv=setInterval(()=>{
+    if(!isDown){stopHold();return;}
+    const held=(performance.now()-downT)/1000;
+    // steeper ramp: big growth by 1s, not 3s
+    const e=Math.min(3.5,0.55+held*1.4);
+    const sr=Math.min(36,10+held*12)|0;
+    paintSub(holdX,holdY,sr,0.7);
+    const n=Math.min(32,~~(4+held*8));
+    const hsw=Math.min(2.4,0.45+e*0.55);
+    spawnAt(holdX,holdY,n,e,hsw);
+    // blob colonies also scale with hold — more blobs, bigger, as time grows
+    const blobChance=0.12+held*0.08;
+    if(Math.random()<blobChance){
+      const blobE=Math.min(2.8,0.5+held*0.6);
+      spawnBlob(holdX+(Math.random()-.5)*e*14,holdY+(Math.random()-.5)*e*14,blobE);
+    }
+  },88);}
+function stopHold(){if(holdIv){clearInterval(holdIv);holdIv=null;}}
+
+// input — SINGLE set of listeners, no duplicates
+function onDown(x,y){
+  isDown=true;prevX=x;prevY=y;downT=performance.now();lastMoveT=downT;
+  paintSub(x,y,11,1.0);
+  spawnAt(x,y,9,0.55,0.45);
+  spawnBlob(x,y,0.55+Math.random()*0.35);
+  cur.classList.add('big');
+  startHold(x,y);
+}
+function onMove(x,y){
+  mouseX=x;mouseY=y;
+  cur.style.left=x+'px';cur.style.top=y+'px';
+  if(!isDown)return;
+  const now=performance.now(),dt=Math.max(1,now-lastMoveT);
+  const dist=Math.hypot(x-prevX,y-prevY),spd=dist/dt*14;
+  lastMoveT=now;
+  if(dist>4){
+    const e=Math.min(1.8,0.48+spd*0.065);
+    const sw=Math.max(0.28,Math.min(1.8,1.4-spd*0.055));
+    paintSubLine(prevX,prevY,x,y,10,0.9);
+    const n=Math.min(15,~~(5+spd*1.0));
+    spawnAt(x,y,n,e,sw);
+    // slow movement → spawn blob colonies (threshold: < 3 px/ms)
+    if(spd<3.0){
+      // only every ~30px of slow travel to avoid crowding
+      if(dist>18||blobs.length===0){
+        spawnBlob(x,y,e*(1.2+Math.random()*0.4));
+      }
+    }
+    prevX=x;prevY=y;holdX=x;holdY=y;
+  }
+}
+function onUp(){
+  isDown=false;cur.classList.remove('big');stopHold();
+  // reset both substrate AND trail so next stroke always starts thin
+  if(subMap) for(let i=0;i<subMap.length;i++) subMap[i]=0;
+  if(trail)  for(let i=0;i<trail.length;i++)  trail[i]=0;
+}
+
+hitEl.addEventListener('pointerdown',e=>{e.preventDefault();onDown(e.clientX,e.clientY);},{passive:false});
+hitEl.addEventListener('pointermove',e=>{onMove(e.clientX,e.clientY);});
+hitEl.addEventListener('pointerup',onUp);
+hitEl.addEventListener('pointerleave',onUp);
+window.addEventListener('pointermove',e=>{
+  if(e.target!==hitEl){mouseX=e.clientX;mouseY=e.clientY;cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';}
+},true);
+
+// overlay
+function redrawOverlay(){
+  ctxOv.clearRect(0,0,W,H);
+  if(!overlayOn)return;
+  const p=activePal().b;
+  const id=ctxOv.createImageData(W,H);const d=id.data;
+  for(let y=0;y<H;y++){const ty=Math.min(TH-1,(y/SC)|0);
+    for(let x=0;x<W;x++){const tx=Math.min(TW-1,(x/SC)|0);
+      const v=subMap[ty*TW+tx]||0;if(v<0.02)continue;
+      const i=(y*W+x)*4,a=(Math.min(1,v)*210)|0;
+      d[i]=p.r;d[i+1]=p.g;d[i+2]=p.b;d[i+3]=a;}}
+  ctxOv.putImageData(id,0,0);
+  if(ghostText.trim()){
+    ctxOv.save();ctxOv.font=activeFont().cssFont;
+    ctxOv.textAlign='center';ctxOv.textBaseline='middle';ctxOv.globalAlpha=0.35;
+    ctxOv.fillStyle=`rgb(${Math.min(255,p.r+45)},${Math.min(255,p.g+45)},${Math.min(255,p.b+45)})`;
+    ctxOv.fillText(ghostText,W/2,H/2);ctxOv.restore();}
+}
+
+// anemone reaction — gentle ripple on cA near mouse when idle
+function doMouseReact(){
+  if(anyAlive||mouseX<-100||mouseY<-100)return;
+  const tv=senseTrail(mouseX,mouseY)+senseSub(mouseX,mouseY);
+  if(tv<0.04)return;
+  const sz=10+tv*25;
+  ctxA.save();ctxA.globalAlpha=0.045;
+  ctxA.drawImage(cvP,mouseX-sz*1.4,mouseY-sz*1.4,sz*2.8,sz*2.8,mouseX-sz*1.47,mouseY-sz*1.47,sz*2.94,sz*2.94);
+  ctxA.restore();
+}
+
+// ── text placement ────────────────────────────────────
+function getBoxFont(){
+  const f=activeFont();
+  return f;
+}
+function applyBoxFont(){
+  const f=activeFont();
+  tBox.style.fontFamily=f.family;
+  tBox.style.fontSize=f.fs+'px';
+  tBox.style.fontWeight=f.fw;
+  tBox.style.fontVariationSettings=f.varSettings||'normal';
+  // font-style: serif=italic, sans=normal (slant done via transform)
+  tBox.style.fontStyle=f.isSerif&&f.serifItalic?'italic':'normal';
+  // always just center — no skewX to avoid visual position drift
+  tBox.style.transform='translate(-50%,-50%)';
+  // approximate slant visually using font-style oblique (display only)
+  if(!f.isSerif){
+    tBox.style.fontStyle=f.fsl<0?`oblique ${Math.abs(f.fsl*2.5)}deg`:'normal';
+  }
+  tBox.style.left=tBoxX+'px';tBox.style.top=tBoxY+'px';
+  tBox.style.width='max-content';
+  tBox.rows=Math.max(1,tBox.value.split('\n').length);
+  // update size indicator
+  const sv=document.getElementById('szVal');
+  if(sv)sv.textContent=f.fs+'px';
+  // position floating panel below tBox
+  const sv2=document.getElementById('szVal');if(sv2)sv2.textContent=f.fs+'px';
+  const wv=document.getElementById('wdthVal');if(wv)wv.textContent=f.fwd||100;
+  const slv=document.getElementById('slantVal');if(slv)slv.textContent=(f.fsl||0)+'°';
+  const rW=document.getElementById('rowWdth');
+  const rS=document.getElementById('rowSlant');
+  const rI=document.getElementById('rowItalic');
+  const lbl=document.getElementById('slantLbl');
+  if(rW)rW.style.display=f.isSerif?'none':'flex';
+  if(rS)rS.style.display=f.isSerif?'none':'flex';
+  if(rI)rI.style.display=f.isSerif?'flex':'none';
+  if(lbl)lbl.textContent='slant';
+  positionPanel();
+}
+function positionPanel(){
+  const panel=document.getElementById('tPanel');
+  if(!textMode)return;
+  // panel: below tBox
+  if(panel){
+    const margin=14;
+    let px2=tBoxX-panel.offsetWidth/2;
+    let py2=tBoxY+Math.max(tBox.offsetHeight/2,40)+margin;
+    px2=Math.max(8,Math.min(W-panel.offsetWidth-8,px2));
+    py2=Math.max(8,Math.min(H-panel.offsetHeight-8,py2));
+    panel.style.left=px2+'px';panel.style.top=py2+'px';
+  }
+
+}
+function enterTextMode(){
+  textMode=true;
+  if(tBoxX===0){tBoxX=W/2;tBoxY=H/2;}
+  document.getElementById('btxt').classList.add('on');
+  tPlane.classList.add('active');
+  hitEl.style.pointerEvents='none';
+  tBox.style.display='block';
+  document.getElementById('tPanel').classList.add('show');
+  applyBoxFont();
+  setTimeout(()=>{tBox.focus();positionPanel();},40);
+}
+function exitTextMode(){
+  textMode=false;
+  document.getElementById('btxt').classList.remove('on');
+  tPlane.classList.remove('active');
+  hitEl.style.pointerEvents='';
+  tBox.style.display='none';
+  document.getElementById('tPanel').classList.remove('show');
+}
+document.getElementById('btxt').addEventListener('click',()=>textMode?exitTextMode():enterTextMode());
+
+// text placement interactions
+const tPlane=document.getElementById('tPlane');
+const tBox=document.getElementById('tBox');
+// click blank canvas area → relocate text box
+tPlane.addEventListener('pointerdown',e=>{
+  if(e.target===tPlane){
+    tBoxX=e.clientX;tBoxY=e.clientY;applyBoxFont();
+    setTimeout(()=>tBox.focus(),30);
+  }
+});
+// panel handle drags the text box
+const panelHandle=document.getElementById('panelHandle');
+panelHandle.addEventListener('pointerdown',e=>{
+  tDragging=true;tDragOX=e.clientX-tBoxX;tDragOY=e.clientY-tBoxY;
+  panelHandle.setPointerCapture(e.pointerId);
+  e.preventDefault();e.stopPropagation();
+});
+panelHandle.addEventListener('pointermove',e=>{
+  if(tDragging){tBoxX=e.clientX-tDragOX;tBoxY=e.clientY-tDragOY;applyBoxFont();}
+});
+panelHandle.addEventListener('pointerup',()=>tDragging=false);
+tBox.addEventListener('input',applyBoxFont);
+// panel listeners
+['tSzs','tWgt','tWdth','tSlant'].forEach(id=>{
+  const el=document.getElementById(id);if(el)el.addEventListener('input',applyBoxFont);
+});
+document.getElementById('tBloom').addEventListener('click',bloomFromBox);
+document.getElementById('tClose').addEventListener('click',exitTextMode);
+function setFont(serif){
+  useSerif=serif;
+  document.getElementById('tFontSans').classList.toggle('on',!serif);
+  document.getElementById('tFontSerif').classList.toggle('on',serif);
+  applyBoxFont();
+}
+document.getElementById('tFontSans').addEventListener('click',()=>setFont(false));
+document.getElementById('tFontSerif').addEventListener('click',()=>setFont(true));
+document.getElementById('tItalic').addEventListener('click',()=>{
+  const b=document.getElementById('tItalic');
+  b.classList.toggle('on');
+  applyBoxFont();
+});
+setFont(false);
+tBox.addEventListener('keydown',e=>{
+  // Cmd+Enter or Ctrl+Enter → bloom; plain Enter → line break (default)
+  if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();bloomFromBox();}
+  if(e.key==='Escape')exitTextMode();
+  e.stopPropagation();
+});
+function bloomFromBox(){
+  const txt=tBox.value.trim();if(!txt)return;
+  const f=activeFont();
+  bloomTextAt(txt,tBoxX,tBoxY,f,true);
+  // stay in text mode — user can re-edit and bloom again
+  // tBox keeps its content; re-focus for editing
+  setTimeout(()=>{tBox.focus();const l=tBox.value.length;tBox.setSelectionRange(l,l);},60);
+}
+
+// text bloom
+function activeFont(){
+  const fs=parseInt(document.getElementById('tSzs').value||88);
+  const fw=parseInt(document.getElementById('tWgt').value||600);
+  const fwd=parseInt((document.getElementById('tWdth')||{value:100}).value||100);
+  const fsl=parseFloat((document.getElementById('tSlant')||{value:0}).value||0);
+  const serifItalic=document.getElementById('tItalic')&&
+    document.getElementById('tItalic').classList.contains('on');
+  if(useSerif){
+    // Instrument Serif: weight works (400/700), italic via font-style
+    const itStr=serifItalic?'italic ':'';
+    return{cssFont:`${itStr}${fw} ${fs}px 'Instrument Serif',serif`,
+           family:"'Instrument Serif',serif",
+           varSettings:`'wght' ${fw}`,
+           fs,fw,fwd:100,fsl:0,isSerif:true,serifItalic};
+  }
+  // Roboto Flex: weight + width via varSettings, slant via CSS skewX transform
+  // (canvas ctx.font doesn't support oblique Xdeg, so we use transform shear)
+  return{cssFont:`${fw} ${fs}px 'Roboto Flex',sans-serif`,
+         family:"'Roboto Flex',sans-serif",
+         varSettings:`'wght' ${fw},'wdth' ${fwd},'slnt' ${fsl}`,
+         fs,fw,fwd,fsl,isSerif:false,serifItalic:false,
+         skewDeg: fsl<0 ? fsl*2.5 : 0};  // map slnt(-10..0) to skewX degrees
+}
+function updateGhost(){} // legacy stub
+function bloomTextAt(text,cx,cy,f,multiline){
+  // reset trail before bloom so agents always start with clean steering
+  if(trail) for(let i=0;i<trail.length;i++) trail[i]=0;
+  const density=parseInt(document.getElementById('tDns').value);
+  // chaos 0-10: 0=uniform/predictable, 10=fully wild
+  const chaos=parseInt(document.getElementById('tRnd').value)/10; // 0..1
+  const off=document.createElement('canvas');off.width=W;off.height=H;
+  const oc=off.getContext('2d');
+  oc.font=f.cssFont;
+  if(f.varSettings&&oc.fontVariationSettings!==undefined)oc.fontVariationSettings=f.varSettings;
+  if(f.isSerif&&f.serifItalic)oc.font='italic '+f.cssFont;
+  oc.fillStyle='white';oc.textAlign='center';oc.textBaseline='middle';
+  const lhFS=f.fs||parseInt(document.getElementById('tSzs').value)||88;
+  // measure actual rendered bounds to find true visual center
+  const probe=oc.measureText(text.split('\n')[0]||'M');
+  const rendAsc=probe.actualBoundingBoxAscent||0;
+  const rendDsc=probe.actualBoundingBoxDescent||0;
+  // visual center of rendered glyphs vs math middle of em-square
+  // shift cy so rendered center lands at tBoxY
+  const glyphMid=(rendAsc-rendDsc)/2;
+  const adjCy=cy-glyphMid;
+  if(multiline){
+    const lines=text.split('\n'),lh=lhFS*1.2,th=lines.length*lh;
+    lines.forEach((l,i)=>oc.fillText(l,cx,adjCy-th/2+i*lh+lh/2));
+  } else {
+    oc.fillText(text,cx,adjCy);
+  }
+  // sample raw pixels, then apply skew offset to each point's x
+  // x_visual = x_raw + tan(skewDeg) * (y - cy)  — matches CSS skewX pivot at element centre
+  const skewShear=f.skewDeg ? Math.tan(f.skewDeg*Math.PI/180) : 0;
+  const px=oc.getImageData(0,0,W,H).data,pts=[];
+  const step=Math.max(3,~~(f.fs/18));
+  for(let y=0;y<H;y+=step)for(let x=0;x<W;x+=step)
+    if(px[(y*W+x)*4+3]>80)
+      pts.push({x: skewShear ? Math.round(x+skewShear*(y-adjCy)) : x, y});
+  if(!pts.length)return;
+  for(const p of pts)paintSub(p.x,p.y,5,0.95);
+
+  // full shuffle — different random subset every bloom
+  for(let i=pts.length-1;i>0;i--){const j=~~(Math.random()*(i+1));[pts[i],pts[j]]=[pts[j],pts[i]];}
+  // trim to maxC random points (already shuffled, so first maxC is a random subset)
+  const maxC=Math.min(pts.length,120+density*200);
+  if(pts.length>maxC) pts.length=maxC;
+  const skip=1; // use every point in the trimmed random set
+  // wide delay spread + non-linear randomisation for organic stagger
+  const maxDelay=(200+chaos*1400)+density*400;
+
+  // pre-assign a few "anchor" palette colours so adjacent colonies vary noticeably
+  const palPool=[activePal().b,...activePal().a];
+
+  let spawnedBlobs=0;
+  const maxBlobs=density*3+2;
+
+  for(let i=0;i<pts.length;i+=skip){
+    const p=pts[i];
+    // non-linear delay: cube-root so some spawn very early, most mid-range
+    const delay=~~(Math.pow(Math.random(),0.55)*maxDelay);
+
+    // energy varies widely: some spots get heavy dense growth, others wispy
+    // low chaos→narrow energy band; high chaos→huge variance
+    const energy=0.55+density*0.18+(chaos>0?Math.pow(Math.random(),0.4+0.8*(1-chaos))*chaos*1.5:0);
+
+    // stroke width: mix thin hyphae and fat ones randomly
+    // chaos scales mix of thin vs fat strokes
+    const sw=chaos>0&&Math.random()<chaos*0.35
+      ? Math.max(0.2,0.22+Math.random()*0.4*chaos)          // wispy (chaos only)
+      : Math.max(0.4,0.5+density*0.12+Math.random()*0.25);  // solid fill stroke
+
+    // agent count: poisson-like — most spawn points get 1-2, rare ones get many
+    // burst probability scales with chaos
+    // base count scales with density; bursts scale with chaos+density
+    const n=Math.random()<(chaos*0.2)
+      ? 3+~~(Math.random()*6*chaos+density*1.5)
+      : 1+~~(density*1.2+Math.random()*1.5);
+
+    // occasionally use an accent colour from palette instead of base
+    const useAccent=Math.random()<chaos*0.55;
+    if(useAccent){
+      // temporarily override customColor for this spawn
+      const accentCol=palPool[~~(Math.random()*palPool.length)];
+      const jt=()=>~~((Math.random()-.5)*(20+chaos*50));
+      const tmpCol={r:Math.max(0,Math.min(255,accentCol.r+jt())),
+                    g:Math.max(0,Math.min(255,accentCol.g+jt())),
+                    b:Math.max(0,Math.min(255,accentCol.b+jt()))};
+      const driftA=Math.max(3,f.fs*0.022+density*0.8)+Math.random()*chaos*f.fs*0.30;
+      setTimeout(()=>{
+        const prev=customColor;
+        customColor=tmpCol;
+        spawnAt(p.x,p.y,n,energy,sw,driftA);
+        customColor=prev;
+      },delay);
+    } else {
+      // maxDrift: at chaos=0 agents stay within ~half a stroke width of birth
+    // at chaos=1 they can wander up to ~30% of font size outside letterform
+    // tight base: agents stay within the stroke width of the letterform
+    // chaos 0 → max 3% of font outside; chaos 1 → max 30% outside
+    const driftBase=Math.max(3, f.fs*0.022 + density*0.8);
+    const outsideAllowance=chaos * f.fs * 0.30;
+    const agentDrift=driftBase + Math.random()*outsideAllowance;
+    setTimeout(()=>spawnAt(p.x,p.y,n,energy,sw,agentDrift),delay);
+    }
+
+    // blobs: more varied — some large scattered, some tiny tight
+    if(spawnedBlobs<maxBlobs&&Math.random()<density*0.06+chaos*0.12+0.02){
+      const blobDelay=~~(Math.pow(Math.random(),0.6)*maxDelay);
+      const blobE=0.2+Math.random()*1.6+density*0.12;
+      // scatter radius varies: some right on letterform, some further out
+      const scatter=chaos*f.fs*0.12*Math.random(); // zero at chaos 0, up to 12% font at chaos 10
+      // blob size: max radius capped relative to font size + chaos
+      const blobMaxR=Math.max(2, f.fs*0.015 + chaos*f.fs*0.15 + Math.random()*f.fs*0.04*chaos);
+      setTimeout(()=>{
+        const b=new Blob(
+          p.x+(Math.random()-.5)*scatter,
+          p.y+(Math.random()-.5)*scatter,
+          pickCol(), blobE);
+        b.maxR=Math.min(b.maxR, blobMaxR);
+        if(blobs.length<MAX_BLOBS) blobs.push(b);
+      },blobDelay);
+      spawnedBlobs++;
+    }
+  }
+  if(overlayOn)setTimeout(redrawOverlay,60);
+}
+
+// bb hidden — no longer needed
+
+// grid
+function drawGrid(){
+  ctxG.clearRect(0,0,W,H);
+  const s=26,lc=light?'rgba(0,0,0,0.048)':'rgba(255,255,255,0.038)';
+  ctxG.strokeStyle=lc;ctxG.lineWidth=.5;
+  for(let x=0;x<=W;x+=s){ctxG.beginPath();ctxG.moveTo(x,0);ctxG.lineTo(x,H);ctxG.stroke();}
+  for(let y=0;y<=H;y+=s){ctxG.beginPath();ctxG.moveTo(0,y);ctxG.lineTo(W,y);ctxG.stroke();}
+  ctxG.fillStyle=light?'rgba(0,0,0,0.09)':'rgba(255,255,255,0.062)';
+  for(let x=0;x<=W;x+=s)for(let y=0;y<=H;y+=s){ctxG.beginPath();ctxG.arc(x,y,.7,0,Math.PI*2);ctxG.fill();}
+}
+
+function resize(){
+  W=innerWidth;H=innerHeight;
+  [cvG,cvP,cvA,cvOv].forEach(c=>{c.width=W;c.height=H;});
+  initTrail();initSub();drawGrid();if(overlayOn)redrawOverlay();
+}
+window.addEventListener('resize',resize);
+
+// controls
+
+document.getElementById('bm').addEventListener('click',()=>{
+  light=!light;document.body.classList.toggle('lm',light);
+  document.getElementById('bm').textContent=light?'DARK':'LIGHT';
+  drawGrid(); // cP keeps no background fill — stays transparent for clean export
+  if(overlayOn)redrawOverlay();});
+document.getElementById('bc').addEventListener('click',()=>{
+  agents=[];anyAlive=false;blobs=[];
+  [cvP,cvA,cvOv].forEach(c=>{const x=c.getContext('2d');x.globalCompositeOperation='source-over';x.clearRect(0,0,W,H);});
+  initTrail();initSub();ghostText='';if(overlayOn)redrawOverlay();});
+
+// palette row
+(function(){const row=document.getElementById('palrow');
+  PALS.forEach((p,i)=>{const sw=document.createElement('button');
+    sw.className='psw'+(i===0?' on':'');sw.title=p.name;
+    sw.style.background=`rgb(${p.b.r},${p.b.g},${p.b.b})`;
+    sw.addEventListener('click',()=>{palIdx=i;
+      document.querySelectorAll('.psw').forEach((s,j)=>s.classList.toggle('on',j===i));
+      document.getElementById('plbl').textContent=p.name+' ·';
+      customColor=null;
+      const wrap2=document.getElementById('cswWrap');
+      if(wrap2){wrap2.classList.remove('on');wrap2.style.background='transparent';}
+      if(overlayOn)redrawOverlay();});
+    row.appendChild(sw);});
+  // custom color
+  document.getElementById('colorInp').addEventListener('input',e=>{
+    const hex=e.target.value;
+    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    customColor={r,g,b};
+    const wrap=document.getElementById('cswWrap');
+    wrap.style.background=hex;wrap.classList.add('on');
+    document.querySelectorAll('.psw').forEach(s=>s.classList.remove('on'));
+    document.getElementById('plbl').textContent='custom ·';
+    if(overlayOn)redrawOverlay();
+  });
+  // clicking the swatch (not the hidden input) also works via label overlap
+})();
+
+// main loop
+function loop(){
+  requestAnimationFrame(loop);frameN++;
+  // fade tip layer
+  ctxA.globalAlpha=0.13;ctxA.globalCompositeOperation='destination-out';
+  ctxA.fillRect(0,0,W,H);ctxA.globalCompositeOperation='source-over';ctxA.globalAlpha=1;
+  // blobs — update (paint incrementally to cP) and draw breathing to cA
+  const t=frameN*0.018;
+  for(let i=0,n=blobs.length;i<n;i++) blobs[i].update();
+  if(frameN%60===0) blobs=blobs.filter(b=>b.alive||b.age<b.maxAge+30);
+  // blob animated breathing on cA (every frame, at low alpha)
+  for(let i=0,n=blobs.length;i<n;i++) blobs[i].drawBreath(t);
+
+  // agents
+  const born=[];
+  for(let i=0,n=agents.length;i<n;i++)agents[i].step(born);
+  for(const a of born)if(agents.length<MAX_AG)agents.push(a);
+  if(frameN%15===0){agents=agents.filter(a=>!a.dead);anyAlive=agents.length>0;}
+  if(frameN%2===0)diffuseTrail();
+  if(frameN%8===0)decaySub();
+  if(!anyAlive&&frameN%4===0)doMouseReact();
+}
+
+// export
+// export size selection (0=screen, 2048=2K, 4096=4K)
+let exportSize=0; // 0 means use screen resolution
+function setExportSize(s){
+  exportSize=s;
+  ['eSzScr','eSz2k','eSz4k'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b)b.style.borderColor=
+      (s===0&&id==='eSzScr')||(s===2048&&id==='eSz2k')||(s===4096&&id==='eSz4k')
+      ?'rgba(160,255,60,.7)':'rgba(255,255,255,.08)';
+  });
+}
+setExportSize(0); // default: screen size highlighted
+function doExport(withBg){
+  // compute output dimensions
+  let ew=W,eh=H;
+  if(exportSize>0){
+    const longest=Math.max(W,H);
+    const scale=exportSize/longest;
+    ew=Math.round(W*scale);eh=Math.round(H*scale);
+  }
+  const e=document.createElement('canvas');e.width=ew;e.height=eh;
+  const ec=e.getContext('2d');
+  if(withBg){ec.fillStyle=light?'#e8e3d4':'#0f0f0d';ec.fillRect(0,0,ew,eh);}
+  // draw source canvas scaled to output size
+  ec.drawImage(cvP,0,0,W,H,0,0,ew,eh);
+  const suffix=(exportSize>0?'-'+(exportSize/1024|0)+'k':'')+(withBg?'':'-transparent');
+  const a=document.createElement('a');
+  a.download='cultured'+suffix+'.png';
+  a.href=e.toDataURL('image/png');a.click();
+}
+document.getElementById('bexp').addEventListener('click',e=>{
+  e.stopPropagation();document.getElementById('expM').classList.toggle('open');});
+document.getElementById('eSzScr').addEventListener('click',()=>setExportSize(0));
+document.getElementById('eSz2k').addEventListener('click',()=>setExportSize(2048));
+document.getElementById('eSz4k').addEventListener('click',()=>setExportSize(4096));
+document.getElementById('eBg').addEventListener('click',()=>{
+  doExport(true);document.getElementById('expM').classList.remove('open');});
+document.getElementById('eTr').addEventListener('click',()=>{
+  doExport(false);document.getElementById('expM').classList.remove('open');});
+document.addEventListener('click',e=>{
+  if(!document.getElementById('expW').contains(e.target))
+    document.getElementById('expM').classList.remove('open');
+});
+
+// font toggle
+
+resize();loop();
+</script>
+</body>
+</html>
