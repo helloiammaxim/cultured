@@ -29,5 +29,5 @@ Blob colonies — particle-stipple approach: each colony emits dozens of small a
 Displacement field — a second Float32Array tracks mouse influence. Hovering over grown mould drags filaments gently. Pressing deforms the colony outward.
 
 
-Made by
+Made with claude by
 @helloiammaxim
