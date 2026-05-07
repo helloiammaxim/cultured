@@ -913,14 +913,8 @@ function bloomTextAt(text,cx,cy,f,multiline){
   if(f.isSerif&&f.serifItalic)oc.font='italic '+f.cssFont;
   oc.fillStyle='white';oc.textAlign='center';oc.textBaseline='middle';
   const lhFS=f.fs||parseInt(document.getElementById('tSzs').value)||88;
-  // measure actual rendered bounds to find true visual center
-  const probe=oc.measureText(text.split('\n')[0]||'M');
-  const rendAsc=probe.actualBoundingBoxAscent||0;
-  const rendDsc=probe.actualBoundingBoxDescent||0;
-  // visual center of rendered glyphs vs math middle of em-square
-  // shift cy so rendered center lands at tBoxY
-  const glyphMid=(rendAsc-rendDsc)/2;
-  const adjCy=cy-glyphMid;
+  // draw at (cx,cy) — textBaseline:'middle' + translate(-50%,-50%) on tBox = same center
+  const adjCy=cy;
   if(multiline){
     const lines=text.split('\n'),lh=lhFS*1.2,th=lines.length*lh;
     lines.forEach((l,i)=>oc.fillText(l,cx,adjCy-th/2+i*lh+lh/2));
@@ -931,10 +925,17 @@ function bloomTextAt(text,cx,cy,f,multiline){
   // x_visual = x_raw + tan(skewDeg) * (y - cy)  — matches CSS skewX pivot at element centre
   const skewShear=f.skewDeg ? Math.tan(f.skewDeg*Math.PI/180) : 0;
   const px=oc.getImageData(0,0,W,H).data,pts=[];
-  const step=Math.max(3,~~(f.fs/18));
+  // fine step to detect all letterform pixels; jitter breaks grid regularity
+  const step=Math.max(2,~~(f.fs/28));
+  const half=step/2;
   for(let y=0;y<H;y+=step)for(let x=0;x<W;x+=step)
-    if(px[(y*W+x)*4+3]>80)
-      pts.push({x: skewShear ? Math.round(x+skewShear*(y-adjCy)) : x, y});
+    if(px[(y*W+x)*4+3]>80){
+      // jitter spawn point randomly within the cell — eliminates grid lattice
+      const jx=x+(Math.random()-.5)*step*1.8;
+      const jy=y+(Math.random()-.5)*step*1.8;
+      const sx=skewShear ? jx+skewShear*(jy-adjCy) : jx;
+      pts.push({x:sx, y:jy});
+    }
   if(!pts.length)return;
   for(const p of pts)paintSub(p.x,p.y,5,0.95);
 
@@ -960,7 +961,7 @@ function bloomTextAt(text,cx,cy,f,multiline){
 
     // energy varies widely: some spots get heavy dense growth, others wispy
     // low chaos→narrow energy band; high chaos→huge variance
-    const energy=0.55+density*0.18+(chaos>0?Math.pow(Math.random(),0.4+0.8*(1-chaos))*chaos*1.5:0);
+    const energy=0.45+density*0.14+(chaos>0?Math.pow(Math.random(),0.4+0.8*(1-chaos))*chaos*1.2:0);
 
     // stroke width: mix thin hyphae and fat ones randomly
     // chaos scales mix of thin vs fat strokes
@@ -984,7 +985,7 @@ function bloomTextAt(text,cx,cy,f,multiline){
       const tmpCol={r:Math.max(0,Math.min(255,accentCol.r+jt())),
                     g:Math.max(0,Math.min(255,accentCol.g+jt())),
                     b:Math.max(0,Math.min(255,accentCol.b+jt()))};
-      const driftA=Math.max(3,f.fs*0.022+density*0.8)+Math.random()*chaos*f.fs*0.30;
+      const driftA=2+density*0.5+Math.random()*chaos*f.fs*0.25;
       setTimeout(()=>{
         const prev=customColor;
         customColor=tmpCol;
@@ -996,8 +997,10 @@ function bloomTextAt(text,cx,cy,f,multiline){
     // at chaos=1 they can wander up to ~30% of font size outside letterform
     // tight base: agents stay within the stroke width of the letterform
     // chaos 0 → max 3% of font outside; chaos 1 → max 30% outside
-    const driftBase=Math.max(3, f.fs*0.022 + density*0.8);
-    const outsideAllowance=chaos * f.fs * 0.30;
+    // chaos=0: agents barely move from birth (stay in letterform)
+    // chaos=10: can grow up to 25% of font size outside glyph
+    const driftBase=2 + density*0.5;  // very tight — just enough to form filaments
+    const outsideAllowance=chaos * f.fs * 0.25;
     const agentDrift=driftBase + Math.random()*outsideAllowance;
     setTimeout(()=>spawnAt(p.x,p.y,n,energy,sw,agentDrift),delay);
     }
