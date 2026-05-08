@@ -11,10 +11,11 @@ html,body{width:100%;height:100%;overflow:hidden;touch-action:none;user-select:n
 body{background:#0f0f0d}
 body.lm{background:#e8e3d4}
 canvas{position:fixed;inset:0;display:block;pointer-events:none}
+#bg{position:fixed;inset:0;z-index:0;background:#0f0f0d;transition:background .4s;pointer-events:none}
 #cG{z-index:1}
 #cP{z-index:2}
 #cA{z-index:3}
-#hit{position:fixed;inset:0;z-index:4;background:transparent}
+#hit{position:fixed;inset:0;z-index:4;background:transparent;touch-action:none}
 #cur{position:fixed;z-index:500;pointer-events:none;
   width:18px;height:18px;border-radius:50%;
   border:1px solid rgba(255,255,255,.5);background:transparent;
@@ -80,17 +81,27 @@ body.lm .btn{border-color:rgba(0,0,0,.1);color:rgba(0,0,0,.3)}
 #tPlane.active{pointer-events:all}
 #tBox{position:absolute;background:transparent;border:none;outline:none;
   overflow:hidden;resize:none;font-family:'Roboto Flex',sans-serif;font-size:88px;font-weight:600;
-  color:rgba(255,255,255,.18);caret-color:rgba(160,255,60,.9);
+  color:rgba(255,255,255,.55);caret-color:rgba(160,255,60,.95);
   line-height:1.15;text-align:center;padding:4px 8px;margin:0;
   min-width:60px;width:max-content;display:none;cursor:text;
-  transform:translate(-50%,-50%);white-space:pre;background:transparent}
-body.lm #tBox{color:rgba(0,0,0,.14);caret-color:rgba(0,120,60,.9)}
+  transform:translate(-50%,-50%);white-space:pre;background:transparent;
+  mix-blend-mode:difference}
+body.lm #tBox{color:rgba(0,0,0,.65);caret-color:rgba(0,140,60,.95)}
 /* panel drag handle strip at top of tPanel */
 #panelHandle{cursor:grab;display:flex;justify-content:center;align-items:center;
   padding:4px 0 6px;margin:-4px -4px 2px;border-radius:5px 5px 0 0}
 #panelHandle:active{cursor:grabbing}
 #panelHandle-bar{width:32px;height:3px;border-radius:2px;
   background:rgba(255,255,255,.22);transition:background .15s}
+#tCollapse{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:rgba(255,255,255,.35);font-size:14px;
+  cursor:pointer;padding:4px 8px;transition:transform .2s,color .15s;line-height:1}
+#tCollapse:hover{color:rgba(255,255,255,.7)}
+body.lm #tCollapse{color:rgba(0,0,0,.28)}
+body.lm #tCollapse:hover{color:rgba(0,0,0,.6)}
+#tPanel.collapsed .tPanelBody{display:none}
+#tPanel.collapsed #tCollapse{transform:translateY(-50%) rotate(-90deg)}
+#panelHandle{position:relative}
 #panelHandle:hover #panelHandle-bar{background:rgba(255,255,255,.5)}
 body.lm #panelHandle-bar{background:rgba(0,0,0,.18)}
 body.lm #panelHandle:hover #panelHandle-bar{background:rgba(0,0,0,.4)}
@@ -154,9 +165,93 @@ body.lm #expM{background:rgba(234,229,216,.97);border-color:rgba(0,0,0,.1)}
 .ei:hover{color:rgba(255,255,255,.9)}
 body.lm .ei{color:rgba(0,0,0,.45)}
 body.lm .ei:hover{color:rgba(0,0,0,.88)}
-</style>
+
+/* ── Mobile / touch ──────────────────────────────────────────────────── */
+/* hidden on desktop */
+#mBtn,#mPal,#mDrawer{display:none}
+@media (pointer: coarse){
+  #cur{display:none}
+  html,body{cursor:auto}
+  #top{display:none !important}
+  #mBtn,#mPal{display:flex}
+  #mDrawer{display:none}
+  #top{height:auto;min-height:44px;flex-wrap:wrap;padding:8px 10px;gap:5px}
+  .tb{font-size:8px;padding:6px 8px;letter-spacing:.09em;min-height:34px}
+  #plbl{display:none}
+  .psw{width:20px;height:20px}
+  #cswWrap{width:20px;height:20px;font-size:11px}
+  #wm{font-size:8px;bottom:10px;left:12px}
+  #credit{font-size:7px;bottom:10px;right:12px}
+  #strip{display:none !important}
+  #tPanel{position:fixed !important;
+    left:0 !important;right:0 !important;
+    bottom:0 !important;top:auto !important;
+    width:100% !important;
+    border-radius:12px 12px 0 0;
+    border-left:none;border-right:none;border-bottom:none;
+    padding:10px 18px 30px;gap:10px;min-width:0}
+  #tPanel input[type=range]{height:4px}
+  #tPanel input[type=range]::-webkit-slider-thumb{width:22px;height:22px}
+  #tPanel .lbl{font-size:9px;width:38px}
+  #tPanel .tbtn{padding:9px 13px;font-size:9px;min-height:34px}
+  #tPanel .bloom-btn{padding:13px 8px;font-size:10px;min-height:42px}
+  #panelHandle{padding:12px 0 8px;margin:-10px -18px 4px}
+  #panelHandle-bar{width:42px;height:4px}
+  #szVal,#wdthVal,#slantVal{font-size:9px;width:36px}
+  #tBox{font-size:48px !important;max-width:90vw;white-space:pre-wrap;word-break:break-word}
+}
+@media (pointer: coarse) and (max-width: 400px){
+  .tb{font-size:7px;padding:5px 6px}
+  #top{gap:4px;padding:6px 8px}
+  #tBox{font-size:32px !important}
+}
+
+#mBtn{position:fixed;top:12px;left:12px;z-index:600;
+  width:40px;height:40px;border-radius:8px;
+  background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(12px);align-items:center;justify-content:center;
+  cursor:pointer;flex-direction:column;gap:4px;pointer-events:all}
+#mBtn span{display:block;width:16px;height:1.5px;background:rgba(255,255,255,.65);
+  border-radius:1px;transition:all .2s}
+#mBtn.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+#mBtn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+#mBtn.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+body.lm #mBtn{background:rgba(255,255,255,.45);border-color:rgba(0,0,0,.1)}
+body.lm #mBtn span{background:rgba(0,0,0,.6)}
+#mDrawer{position:fixed;top:60px;left:10px;z-index:599;
+  background:rgba(10,10,8,.82);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:6px;backdrop-filter:blur(18px);
+  flex-direction:column;gap:4px;min-width:148px;pointer-events:all}
+#mDrawer.open{display:flex}
+body.lm #mDrawer{background:rgba(234,229,216,.92);border-color:rgba(0,0,0,.1)}
+.mdi{background:none;border:none;text-align:left;width:100%;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;
+  color:rgba(255,255,255,.55);padding:10px 12px;cursor:pointer;
+  text-transform:uppercase;border-radius:5px;transition:all .15s}
+.mdi:hover,.mdi.on{color:rgba(255,255,255,.9);background:rgba(255,255,255,.07)}
+body.lm .mdi{color:rgba(0,0,0,.5)}
+body.lm .mdi:hover,body.lm .mdi.on{color:rgba(0,0,0,.85);background:rgba(0,0,0,.06)}
+#mExpSub{padding:2px 4px 4px;display:flex;flex-direction:column;gap:2px}
+#mExpSub.hidden{display:none}
+#mPal{position:fixed;right:12px;top:50%;transform:translateY(-50%);
+  z-index:600;flex-direction:column;align-items:center;gap:8px;pointer-events:all}
+.mpsw{width:20px;height:20px;border-radius:50%;border:2px solid transparent;
+  cursor:pointer;transition:transform .12s,border-color .12s;pointer-events:all;flex-shrink:0}
+.mpsw:hover{transform:scale(1.2)}
+.mpsw.on{border-color:rgba(255,255,255,.9);transform:scale(1.15)}
+body.lm .mpsw.on{border-color:rgba(0,0,0,.65)}
+#mcswWrap{width:20px;height:20px;border-radius:50%;
+  border:2px dashed rgba(255,255,255,.4);cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:rgba(255,255,255,.5);position:relative;overflow:hidden;
+  transition:border-color .12s,transform .12s}
+#mcswWrap:hover{border-color:rgba(255,255,255,.7);transform:scale(1.2)}
+#mcswWrap.on{border-style:solid;border-color:rgba(255,255,255,.9)}
+body.lm #mcswWrap{border-color:rgba(0,0,0,.35);color:rgba(0,0,0,.5)}
+#mColorInp{position:absolute;inset:0;opacity:0;cursor:pointer;border-radius:50%}</style>
 </head>
 <body>
+<div id="bg"></div>
 <canvas id="cG"></canvas>
 <canvas id="cP"></canvas>
 <canvas id="cA"></canvas>
@@ -166,7 +261,11 @@ body.lm .ei:hover{color:rgba(0,0,0,.88)}
 </div>
 <!-- floating text control panel — shown when text mode active -->
 <div id="tPanel">
-  <div id="panelHandle"><div id="panelHandle-bar"></div></div>
+  <div id="panelHandle">
+    <div id="panelHandle-bar"></div>
+    <button id="tCollapse" onclick="togglePanelCollapse()" title="collapse panel">▾</button>
+  </div>
+  <div class="tPanelBody">
   <div class="row">
     <span class="lbl">size</span>
     <input type="range" id="tSzs" min="18" max="1200" value="88"/>
@@ -204,12 +303,32 @@ body.lm .ei:hover{color:rgba(0,0,0,.88)}
     <span class="lbl">chaos</span>
     <input type="range" id="tRnd" min="0" max="10" value="5" step="1"/>
   </div>
+  </div><!-- end tPanelBody -->
   <div class="row">
     <button class="bloom-btn" id="tBloom">BLOOM — ⌘↵</button>
   </div>
 </div>
 <div id="hit"></div>
 <div id="cur"></div>
+<button id="mBtn" aria-label="menu"><span></span><span></span><span></span></button>
+<div id="mDrawer">
+  <button class="mdi" id="mbm">☀ LIGHT</button>
+  <button class="mdi" id="mbc">✕ CLEAR</button>
+  <button class="mdi" id="mbtxt">✦ TEXT</button>
+  <button class="mdi" id="mbexp">↑ EXPORT</button>
+  <div id="mExpSub" class="hidden">
+    <div style="display:flex;gap:3px;padding:2px 0">
+      <button class="mdi" id="meSzScr" style="flex:1;text-align:center;font-size:9px;border:1px solid rgba(255,255,255,.15);border-radius:3px;padding:6px 3px">SCR</button>
+      <button class="mdi" id="meSz2k"  style="flex:1;text-align:center;font-size:9px;border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:6px 3px">2K</button>
+      <button class="mdi" id="meSz4k"  style="flex:1;text-align:center;font-size:9px;border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:6px 3px">4K</button>
+    </div>
+    <button class="mdi" id="meEBg" style="font-size:9px;padding:7px 10px">with background</button>
+    <button class="mdi" id="meETr" style="font-size:9px;padding:7px 10px">transparent</button>
+  </div>
+</div>
+<div id="mPal">
+  <div id="mcswWrap" title="custom color">+<input type="color" id="mColorInp" value="#a8e000"/></div>
+</div>
 <div id="top">
   <button class="tb" id="bm">LIGHT</button>
   <button class="tb" id="bc">CLEAR</button>
@@ -773,6 +892,18 @@ function applyBoxFont(){
   }
   tBox.style.left=tBoxX+'px';tBox.style.top=tBoxY+'px';
   tBox.style.width='max-content';
+  // position drag handle as a thin bar above the text box
+  const th2=document.getElementById('tBoxHandle');
+  if(th2&&tBox.style.display!=='none'){
+    const bh=Math.max(tBox.offsetHeight,f.fs*1.2);
+    th2.style.cssText=`position:absolute;left:${tBoxX}px;top:${tBoxY-bh/2-22}px;
+      transform:translate(-50%,0);width:${Math.max(60,tBox.offsetWidth||f.fs*3)}px;
+      height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+      border-radius:4px;backdrop-filter:blur(8px);z-index:9`;
+    th2.innerHTML=th2.dataset.d||'<span style="width:28px;height:2px;background:rgba(255,255,255,.35);border-radius:1px;display:block"></span>';
+    th2.dataset.d=th2.innerHTML;
+  }
   tBox.rows=Math.max(1,tBox.value.split('\n').length);
   // update size indicator
   const sv=document.getElementById('szVal');
@@ -791,19 +922,17 @@ function applyBoxFont(){
   if(lbl)lbl.textContent='slant';
   positionPanel();
 }
+const isTouchDev=()=>window.matchMedia('(pointer: coarse)').matches;
 function positionPanel(){
   const panel=document.getElementById('tPanel');
-  if(!textMode)return;
-  // panel: below tBox
-  if(panel){
-    const margin=14;
-    let px2=tBoxX-panel.offsetWidth/2;
-    let py2=tBoxY+Math.max(tBox.offsetHeight/2,40)+margin;
-    px2=Math.max(8,Math.min(W-panel.offsetWidth-8,px2));
-    py2=Math.max(8,Math.min(H-panel.offsetHeight-8,py2));
-    panel.style.left=px2+'px';panel.style.top=py2+'px';
-  }
-
+  if(!textMode||!panel)return;
+  if(isTouchDev()) return; // CSS anchors panel to bottom on touch
+  const margin=14;
+  let px2=tBoxX-panel.offsetWidth/2;
+  let py2=tBoxY+Math.max(tBox.offsetHeight/2,40)+margin;
+  px2=Math.max(8,Math.min(W-panel.offsetWidth-8,px2));
+  py2=Math.max(8,Math.min(H-panel.offsetHeight-8,py2));
+  panel.style.left=px2+'px';panel.style.top=py2+'px';
 }
 function enterTextMode(){
   textMode=true;
@@ -813,6 +942,7 @@ function enterTextMode(){
   hitEl.style.pointerEvents='none';
   tBox.style.display='block';
   document.getElementById('tPanel').classList.add('show');
+  const _th=document.getElementById('tBoxHandle');if(_th)_th.style.display='flex';
   applyBoxFont();
   setTimeout(()=>{tBox.focus();positionPanel();},40);
 }
@@ -823,22 +953,44 @@ function exitTextMode(){
   hitEl.style.pointerEvents='';
   tBox.style.display='none';
   document.getElementById('tPanel').classList.remove('show');
+  const _th2=document.getElementById('tBoxHandle');if(_th2)_th2.style.display='none';
 }
 document.getElementById('btxt').addEventListener('click',()=>textMode?exitTextMode():enterTextMode());
 
 // text placement interactions
 const tPlane=document.getElementById('tPlane');
 const tBox=document.getElementById('tBox');
-// click blank canvas area → relocate text box
+// tap blank canvas → place text box there
 tPlane.addEventListener('pointerdown',e=>{
   if(e.target===tPlane){
-    tBoxX=e.clientX;tBoxY=e.clientY;applyBoxFont();
+    tBoxX=e.clientX;
+    tBoxY=isTouchDev()?Math.min(e.clientY,H*0.52):e.clientY;
+    applyBoxFont();
     setTimeout(()=>tBox.focus(),30);
   }
 });
-// panel handle drags the text box
+// drag tBox directly (touch-friendly) — also works as desktop fallback
+// tBox drag via a transparent overlay handle (avoids conflict with typing)
+const tBoxHandle=document.createElement('div');
+tBoxHandle.id='tBoxHandle';
+document.getElementById('tPlane').appendChild(tBoxHandle);
+tBoxHandle.addEventListener('pointerdown',e=>{
+  tDragging=true;tDragOX=e.clientX-tBoxX;tDragOY=e.clientY-tBoxY;
+  tBoxHandle.setPointerCapture(e.pointerId);
+  e.preventDefault();e.stopPropagation();
+});
+tBoxHandle.addEventListener('pointermove',e=>{
+  if(!tDragging)return;
+  tBoxX=e.clientX-tDragOX;
+  tBoxY=e.clientY-tDragOY;
+  if(isTouchDev())tBoxY=Math.min(tBoxY,H*0.52);
+  applyBoxFont();
+});
+tBoxHandle.addEventListener('pointerup',()=>tDragging=false);
+// panel handle: desktop = drag textbox; mobile = no-op (panel is fixed bottom sheet)
 const panelHandle=document.getElementById('panelHandle');
 panelHandle.addEventListener('pointerdown',e=>{
+  if(isTouchDev())return; // mobile: use tBoxHandle above the text instead
   tDragging=true;tDragOX=e.clientX-tBoxX;tDragOY=e.clientY-tBoxY;
   panelHandle.setPointerCapture(e.pointerId);
   e.preventDefault();e.stopPropagation();
@@ -853,6 +1005,11 @@ tBox.addEventListener('input',applyBoxFont);
   const el=document.getElementById(id);if(el)el.addEventListener('input',applyBoxFont);
 });
 document.getElementById('tBloom').addEventListener('click',bloomFromBox);
+function togglePanelCollapse(){
+  document.getElementById('tPanel').classList.toggle('collapsed');
+  document.getElementById('tCollapse').textContent=
+    document.getElementById('tPanel').classList.contains('collapsed')?'▸':'▾';
+}
 document.getElementById('tClose').addEventListener('click',exitTextMode);
 function setFont(serif){
   useSerif=serif;
@@ -1057,11 +1214,15 @@ window.addEventListener('resize',resize);
 
 // controls
 
-document.getElementById('bm').addEventListener('click',()=>{
-  light=!light;document.body.classList.toggle('lm',light);
+function applyLightMode(){
+  document.body.classList.toggle('lm',light);
+  document.getElementById('bg').style.background=light?'#e8e3d4':'#0f0f0d';
   document.getElementById('bm').textContent=light?'DARK':'LIGHT';
-  drawGrid(); // cP keeps no background fill — stays transparent for clean export
-  if(overlayOn)redrawOverlay();});
+  drawGrid();
+  if(overlayOn)redrawOverlay();
+}
+document.getElementById('bm').addEventListener('click',()=>{
+  light=!light;applyLightMode();});
 document.getElementById('bc').addEventListener('click',()=>{
   agents=[];anyAlive=false;blobs=[];
   [cvP,cvA,cvOv].forEach(c=>{const x=c.getContext('2d');x.globalCompositeOperation='source-over';x.clearRect(0,0,W,H);});
@@ -1092,6 +1253,84 @@ document.getElementById('bc').addEventListener('click',()=>{
     if(overlayOn)redrawOverlay();
   });
   // clicking the swatch (not the hidden input) also works via label overlap
+})();
+
+// ── Mobile controls ────────────────────────────────────────────────────
+(function(){
+  // build mobile palette rail swatches
+  const mPal=document.getElementById('mPal');
+  const mcswWrap=document.getElementById('mcswWrap');
+  if(!mPal)return; // not in DOM if mobile HTML wasn't added
+  PALS.forEach((p,i)=>{
+    const sw=document.createElement('button');
+    sw.className='mpsw'+(i===0?' on':'');
+    sw.style.background=`rgb(${p.b.r},${p.b.g},${p.b.b})`;
+    sw.addEventListener('click',()=>{
+      palIdx=i;customColor=null;
+      document.querySelectorAll('.psw').forEach((s,j)=>s.classList.toggle('on',j===i));
+      document.querySelectorAll('.mpsw').forEach((s,j)=>s.classList.toggle('on',j===i));
+      mcswWrap.classList.remove('on');
+      document.getElementById('cswWrap').classList.remove('on');
+      document.getElementById('plbl').textContent=p.name+' ·';
+    });
+    mPal.insertBefore(sw,mcswWrap);
+  });
+
+  // mobile custom colour
+  document.getElementById('mColorInp').addEventListener('input',e=>{
+    const hex=e.target.value;
+    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    customColor={r,g,b};
+    mcswWrap.style.background=hex;mcswWrap.classList.add('on');
+    document.getElementById('cswWrap').style.background=hex;
+    document.getElementById('cswWrap').classList.add('on');
+    document.querySelectorAll('.psw,.mpsw').forEach(s=>s.classList.remove('on'));
+    document.getElementById('plbl').textContent='custom ·';
+  });
+
+  // hamburger open/close
+  const mBtn=document.getElementById('mBtn');
+  const mDrawer=document.getElementById('mDrawer');
+  function closeDrawer(){
+    mBtn.classList.remove('open');
+    mDrawer.classList.remove('open');
+    document.getElementById('mExpSub').classList.add('hidden');
+  }
+  mBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    mBtn.classList.toggle('open');
+    mDrawer.classList.toggle('open');
+  });
+  document.addEventListener('pointerdown',e=>{
+    if(!mDrawer.contains(e.target)&&e.target!==mBtn)closeDrawer();
+  });
+  mDrawer.addEventListener('click',e=>e.stopPropagation());
+
+  // drawer: LIGHT
+  document.getElementById('mbm').addEventListener('click',()=>{
+    light=!light;
+    applyLightMode();
+    document.getElementById('mbm').textContent=light?'● DARK':'☀ LIGHT';
+    closeDrawer();
+  });
+  // drawer: CLEAR
+  document.getElementById('mbc').addEventListener('click',()=>{
+    document.getElementById('bc').click();closeDrawer();
+  });
+  // drawer: TEXT
+  document.getElementById('mbtxt').addEventListener('click',()=>{
+    document.getElementById('btxt').click();closeDrawer();
+  });
+  // drawer: EXPORT sub-toggle
+  document.getElementById('mbexp').addEventListener('click',e=>{
+    e.stopPropagation();
+    document.getElementById('mExpSub').classList.toggle('hidden');
+  });
+  document.getElementById('meSzScr').addEventListener('click',()=>setExportSize(0));
+  document.getElementById('meSz2k').addEventListener('click',()=>setExportSize(2048));
+  document.getElementById('meSz4k').addEventListener('click',()=>setExportSize(4096));
+  document.getElementById('meEBg').addEventListener('click',()=>{doExport(true);closeDrawer();});
+  document.getElementById('meETr').addEventListener('click',()=>{doExport(false);closeDrawer();});
 })();
 
 // main loop
