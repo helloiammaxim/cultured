@@ -1374,18 +1374,29 @@ function togglePanelCollapse(){
 // export
 // export size selection (0=screen, 2048=2K, 4096=4K)
 // hi-res: use devicePixelRatio to get actual physical pixels
-const HIRES_SCALE=Math.max(2, window.devicePixelRatio||2);
+// hi-res: scale so longest side = 8192px (8K)
 function doExport(withBg, hiRes){
-  const ew=hiRes?Math.round(W*HIRES_SCALE):W;
-  const eh=hiRes?Math.round(H*HIRES_SCALE):H;
-  const e=document.createElement('canvas');e.width=ew;e.height=eh;
+  // compute scale at call time so W/H are correct
+  const TARGET=4096;
+  const scale=hiRes?Math.max(2,Math.ceil(TARGET/Math.max(W,H))):1;
+  const ew=Math.round(W*scale);
+  const eh=Math.round(H*scale);
+  const e=document.createElement('canvas');
+  e.width=ew;e.height=eh;
   const ec=e.getContext('2d');
+  if(!ec){alert('Export failed: canvas too large for this device');return;}
   if(withBg){ec.fillStyle=light?'#e8e3d4':'#0f0f0d';ec.fillRect(0,0,ew,eh);}
   ec.drawImage(cvP,0,0,W,H,0,0,ew,eh);
-  const suffix=(hiRes?'@'+HIRES_SCALE+'x':'')+(withBg?'':'-transparent');
-  const a=document.createElement('a');
-  a.download='cultured'+suffix+'.png';
-  a.href=e.toDataURL('image/png');a.click();
+  // use toBlob for large canvases — avoids 0-byte toDataURL on memory limit
+  e.toBlob(blob=>{
+    if(!blob||blob.size<100){alert('Export failed: image too large, try screen size');return;}
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const suffix=(hiRes?'-4k':'')+(withBg?'':'-transparent');
+    a.download='cultured'+suffix+'.png';
+    a.href=url;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  },'image/png');
 }
 document.getElementById('bexp').addEventListener('click',e=>{
   e.stopPropagation();document.getElementById('expM').classList.toggle('open');});
