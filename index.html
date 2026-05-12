@@ -64,8 +64,8 @@ body.lm #ti::placeholder{color:rgba(0,0,0,.2)}
 .sp{width:1px;height:18px;background:rgba(255,255,255,.08);flex-shrink:0}
 body.lm .sp{background:rgba(0,0,0,.09)}
 #szs{-webkit-appearance:none;width:64px;height:2px;background:rgba(255,255,255,.12);border-radius:1px;outline:none;cursor:pointer;flex-shrink:0}
-#szs::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#c8ff44;cursor:pointer}
-#dns::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#ff9944;cursor:pointer}
+#szs::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.65);cursor:pointer}
+#dns::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.65);cursor:pointer}
 #wts{background:none;border:none;outline:none;color:rgba(255,255,255,.28);font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;flex-shrink:0}
 #wts option{background:#111;color:#fff}
 body.lm #wts{color:rgba(0,0,0,.35)}
@@ -88,31 +88,40 @@ body.lm .btn{border-color:rgba(0,0,0,.1);color:rgba(0,0,0,.3)}
   mix-blend-mode:difference}
 body.lm #tBox{color:rgba(0,0,0,.65);caret-color:rgba(0,140,60,.95)}
 /* panel drag handle strip at top of tPanel */
-#panelHandle{cursor:grab;display:flex;justify-content:center;align-items:center;
-  padding:4px 0 6px;margin:-4px -4px 2px;border-radius:5px 5px 0 0}
-#panelHandle:active{cursor:grabbing}
-#panelHandle-bar{width:32px;height:3px;border-radius:2px;
-  background:rgba(255,255,255,.22);transition:background .15s}
-#tCollapse{position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  background:none;border:none;color:rgba(255,255,255,.45);font-size:16px;
-  cursor:pointer;padding:6px 10px;min-width:36px;min-height:36px;
+#panelHandle{position:relative;display:flex;align-items:center;
+  height:36px;margin:-8px -12px 4px;border-bottom:1px solid rgba(255,255,255,.08)}
+body.lm #panelHandle{border-bottom-color:rgba(0,0,0,.08)}
+#panelHandle-bar{flex:1;display:flex;justify-content:center;
+  align-items:center;cursor:grab;height:100%}
+#panelHandle-bar:active{cursor:grabbing}
+#panelHandle-bar::after{content:'';display:block;width:36px;height:3px;
+  border-radius:2px;background:rgba(255,255,255,.25);transition:background .15s}
+#panelHandle-bar:hover::after{background:rgba(255,255,255,.55)}
+body.lm #panelHandle-bar::after{background:rgba(0,0,0,.2)}
+#tPanelClose{background:none;border:none;color:rgba(255,255,255,.5);
+  font-size:13px;cursor:pointer;width:36px;height:36px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  transition:transform .2s,color .15s;line-height:1;border-radius:4px}
-#tCollapse:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.08)}
-body.lm #tCollapse{color:rgba(0,0,0,.35)}
-body.lm #tCollapse:hover{color:rgba(0,0,0,.7)}
+  border-right:1px solid rgba(255,255,255,.08);transition:color .15s}
+#tPanelClose:hover{color:rgba(255,255,255,.9)}
+body.lm #tPanelClose{color:rgba(0,0,0,.4);border-right-color:rgba(0,0,0,.08)}
+body.lm #tPanelClose:hover{color:rgba(0,0,0,.8)}
+#tCollapse{background:none;border:none;color:rgba(255,255,255,.5);
+  font-size:20px;line-height:1;cursor:pointer;width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-left:1px solid rgba(255,255,255,.08);
+  transition:transform .2s,color .15s;line-height:1}
+#tCollapse:hover{color:rgba(255,255,255,.9)}
+body.lm #tCollapse{color:rgba(0,0,0,.4);border-left-color:rgba(0,0,0,.08)}
+body.lm #tCollapse:hover{color:rgba(0,0,0,.8)}
 #tPanel.collapsed .tPanelBody{display:none}
-#tPanel.collapsed #tCollapse{transform:translateY(-50%) rotate(-90deg)}
-#panelHandle{position:relative}
-#panelHandle:hover #panelHandle-bar{background:rgba(255,255,255,.5)}
-body.lm #panelHandle-bar{background:rgba(0,0,0,.18)}
-body.lm #panelHandle:hover #panelHandle-bar{background:rgba(0,0,0,.4)}
+#tPanel.collapsed #tCollapse svg{transform:rotate(180deg);transition:transform .2s}
 /* floating text control panel */
 #tPanel{position:fixed;z-index:7;display:none;pointer-events:all;
   background:rgba(10,10,8,.72);border:1px solid rgba(255,255,255,.12);
   border-radius:6px;padding:8px 12px;backdrop-filter:blur(18px);
-  display:none;flex-direction:column;gap:6px;min-width:220px}
+  display:none;flex-direction:column;gap:16px;min-width:220px}
 #tPanel.show{display:flex}
+.tPanelBody{display:flex;flex-direction:column;gap:14px}
 body.lm #tPanel{background:rgba(234,229,216,.82);border-color:rgba(0,0,0,.1)}
 #tPanel .row{display:flex;align-items:center;gap:8px}
 #tPanel .lbl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;
@@ -122,11 +131,17 @@ body.lm #tPanel .lbl{color:rgba(0,0,0,.35)}
   background:rgba(255,255,255,.15);border-radius:1px;outline:none;cursor:pointer}
 #tPanel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
   width:10px;height:10px;border-radius:50%;cursor:pointer}
-#szs::-webkit-slider-thumb{background:#c8ff44}
-#tSzs::-webkit-slider-thumb{background:#c8ff44}
-#tWgt::-webkit-slider-thumb{background:#88aaff}
-#tDns::-webkit-slider-thumb{background:#ff9944}
-#tRnd::-webkit-slider-thumb{background:#cc88ff}
+/* all panel slider thumbs: monochrome, consistent size */
+#tSzs::-webkit-slider-thumb,#tWgt::-webkit-slider-thumb,
+#tWdth::-webkit-slider-thumb,#tSlant::-webkit-slider-thumb,
+#tDns::-webkit-slider-thumb,#tRnd::-webkit-slider-thumb,
+#szs::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:rgba(255,255,255,.65);cursor:pointer;border:none}
+body.lm #tSzs::-webkit-slider-thumb,body.lm #tWgt::-webkit-slider-thumb,
+body.lm #tWdth::-webkit-slider-thumb,body.lm #tSlant::-webkit-slider-thumb,
+body.lm #tDns::-webkit-slider-thumb,body.lm #tRnd::-webkit-slider-thumb,
+body.lm #szs::-webkit-slider-thumb{background:rgba(0,0,0,.45)}
 body.lm #tPanel input[type=range]{background:rgba(0,0,0,.15)}
 #szVal,#wdthVal,#slantVal{font-family:'Space Mono',monospace;font-size:8px;
   color:rgba(255,255,255,.45);width:30px;text-align:right;flex-shrink:0;letter-spacing:.04em}
@@ -214,11 +229,9 @@ body.lm .ei:hover{color:rgba(0,0,0,.88)}
   backdrop-filter:blur(16px);align-items:center;justify-content:center;
   cursor:pointer;flex-direction:column;gap:5px;pointer-events:all;
   box-shadow:0 2px 12px rgba(0,0,0,.35)}
-#mBtn span{display:block;width:20px;height:2px;background:rgba(255,255,255,.85);
-  border-radius:1px;transition:all .22s}
-#mBtn.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-#mBtn.open span:nth-child(2){opacity:0;transform:scaleX(0)}
-#mBtn.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+#mBtn svg,#tPanelClose svg,#tCollapse svg{pointer-events:none}
+#mBtn svg{width:20px;height:20px}
+#tPanelClose svg,#tCollapse svg{width:16px;height:16px;transition:transform .2s}
 body.lm #mBtn{background:rgba(255,255,255,.72);border-color:rgba(0,0,0,.18);box-shadow:0 2px 12px rgba(0,0,0,.15)}
 body.lm #mBtn span{background:rgba(0,0,0,.75)}
 #mDrawer{position:fixed;top:74px;left:14px;z-index:599;
@@ -238,7 +251,7 @@ body.lm .mdi{color:rgba(0,0,0,.55)}
 body.lm .mdi:hover,body.lm .mdi.on{color:rgba(0,0,0,.88);background:rgba(0,0,0,.07)}
 #mExpSub{padding:2px 4px 4px;display:flex;flex-direction:column;gap:2px}
 #mExpSub.hidden{display:none}
-#mPal{position:fixed;right:14px;top:50%;transform:translateY(-50%);
+#mPal{position:fixed;right:14px;top:14px;
   z-index:600;flex-direction:column;align-items:center;gap:7px;pointer-events:all;
   background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.12);
   border-radius:20px;padding:10px 8px;backdrop-filter:blur(14px);
@@ -271,8 +284,9 @@ body.lm #mcswWrap{border-color:rgba(0,0,0,.35);color:rgba(0,0,0,.5)}
 <!-- floating text control panel — shown when text mode active -->
 <div id="tPanel">
   <div id="panelHandle">
+    <button id="tPanelClose" onclick="exitTextMode()" title="close"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M12 4.7l-.7-.7L8 7.3 4.7 4l-.7.7L7.3 8 4 11.3l.7.7L8 8.7l3.3 3.3.7-.7L8.7 8z"/></svg></button>
     <div id="panelHandle-bar"></div>
-    <button id="tCollapse" onclick="togglePanelCollapse()" title="collapse panel">▾</button>
+    <button id="tCollapse" onclick="togglePanelCollapse()" title="collapse"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 11L3 6l.7-.7L8 9.6l4.3-4.3.7.7z"/></svg></button>
   </div>
   <div class="tPanelBody">
   <div class="row">
@@ -301,8 +315,6 @@ body.lm #mcswWrap{border-color:rgba(0,0,0,.35);color:rgba(0,0,0,.5)}
   <div class="row">
     <button class="tbtn" id="tFontSans">SANS</button>
     <button class="tbtn" id="tFontSerif">SERIF</button>
-    <div style="flex:1"></div>
-    <button class="tbtn" id="tClose">ESC</button>
   </div>
   <div class="row">
     <span class="lbl">density</span>
@@ -319,20 +331,17 @@ body.lm #mcswWrap{border-color:rgba(0,0,0,.35);color:rgba(0,0,0,.5)}
 </div>
 <div id="hit"></div>
 <div id="cur"></div>
-<button id="mBtn" aria-label="menu"><span></span><span></span><span></span></button>
+<button id="mBtn" aria-label="menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M2 14.8h12v-1.6H2zm0-4h12v-1.6H2zm0-5.6v1.6h12V5.2z"/></svg></button>
 <div id="mDrawer">
   <button class="mdi" id="mbm">☀ LIGHT</button>
   <button class="mdi" id="mbc">✕ CLEAR</button>
   <button class="mdi" id="mbtxt">✦ TEXT</button>
   <button class="mdi" id="mbexp">↑ EXPORT</button>
   <div id="mExpSub" class="hidden">
-    <div style="display:flex;gap:3px;padding:2px 0">
-      <button class="mdi" id="meSzScr" style="flex:1;text-align:center;font-size:9px;border:1px solid rgba(255,255,255,.15);border-radius:3px;padding:6px 3px">SCR</button>
-      <button class="mdi" id="meSz2k"  style="flex:1;text-align:center;font-size:9px;border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:6px 3px">2K</button>
-      <button class="mdi" id="meSz4k"  style="flex:1;text-align:center;font-size:9px;border:1px solid rgba(255,255,255,.08);border-radius:3px;padding:6px 3px">4K</button>
-    </div>
-    <button class="mdi" id="meEBg" style="font-size:9px;padding:7px 10px">with background</button>
-    <button class="mdi" id="meETr" style="font-size:9px;padding:7px 10px">transparent</button>
+    <button class="mdi" id="meEBg" style="font-size:9px;padding:7px 10px">screen · bg</button>
+    <button class="mdi" id="meETr" style="font-size:9px;padding:7px 10px">screen · transparent</button>
+    <button class="mdi" id="meHiBg" style="font-size:9px;padding:7px 10px">hi-res · bg</button>
+    <button class="mdi" id="meHiTr" style="font-size:9px;padding:7px 10px">hi-res · transparent</button>
   </div>
 </div>
 <div id="mPal">
@@ -345,15 +354,10 @@ body.lm #mcswWrap{border-color:rgba(0,0,0,.35);color:rgba(0,0,0,.5)}
   <div id="expW">
     <button class="tb" id="bexp">EXPORT ▾</button>
     <div id="expM">
-      <div style="padding:4px 10px 2px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase">size</div>
-      <div style="display:flex;gap:4px;padding:2px 6px 6px">
-        <button class="ei" id="eSzScr" style="flex:1;text-align:center;padding:5px 4px;border:1px solid rgba(255,255,255,.15);border-radius:3px" title="screen size">SCR</button>
-        <button class="ei" id="eSz2k"  style="flex:1;text-align:center;padding:5px 4px;border:1px solid rgba(255,255,255,.08);border-radius:3px" title="2048px longest side">2K</button>
-        <button class="ei" id="eSz4k"  style="flex:1;text-align:center;padding:5px 4px;border:1px solid rgba(255,255,255,.08);border-radius:3px" title="4096px longest side">4K</button>
-      </div>
-      <div style="padding:0 6px 3px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase">background</div>
-      <button class="ei" id="eBg">with background</button>
-      <button class="ei" id="eTr">transparent</button>
+      <button class="ei" id="eBg">screen · background</button>
+      <button class="ei" id="eTr">screen · transparent</button>
+      <button class="ei" id="eHiBg">hi-res · background</button>
+      <button class="ei" id="eHiTr">hi-res · transparent</button>
     </div>
   </div>
   <div id="palrow" style="margin-left:auto">
@@ -376,7 +380,7 @@ const cur=document.getElementById('cur');
 const szs=document.getElementById('tSzs'); // panel size slider
 // wts removed — weight via panel slider
 let W=0,H=0,light=false,frameN=0;
-let mouseX=-9999,mouseY=-9999;
+let mouseX=-9999,mouseY=-9999,pmouseX=-9999,pmouseY=-9999;
 let isDown=false,prevX=0,prevY=0,downT=0,lastMoveT=0;
 let overlayOn=false,ghostText='';
 let customColor=null;   // {r,g,b} from color picker, or null to use palette
@@ -411,6 +415,29 @@ function senseSub(wx,wy){const tx=wx/SC,ty=wy/SC,ix=tx|0,iy=ty|0,fx=tx-ix,fy=ty-
   return (subMap[tI(ix,iy)]||0)*(1-fx)*(1-fy)+(subMap[tI(ix+1,iy)]||0)*fx*(1-fy)
         +(subMap[tI(ix,iy+1)]||0)*(1-fx)*fy+(subMap[tI(ix+1,iy+1)]||0)*fx*fy;}
 function decaySub(){for(let i=0;i<subMap.length;i++)subMap[i]*=0.9997;}
+
+// displacement field — mouse influence on grown mold
+let dispX=null,dispY=null;
+function initDisp(){dispX=new Float32Array(TW*TH);dispY=new Float32Array(TW*TH);}
+function updateDisp(){
+  if(!dispX)return;
+  for(let i=0;i<dispX.length;i++){dispX[i]*=0.82;dispY[i]*=0.82;}
+  if(mouseX<-100)return;
+  const mdx=mouseX-pmouseX,mdy=mouseY-pmouseY,moving=Math.hypot(mdx,mdy)>0.5;
+  const R=isDown?50:85,str=isDown?4.0:1.4;
+  const tx0=Math.max(0,~~((mouseX-R)/SC)),tx1=Math.min(TW-1,~~((mouseX+R)/SC));
+  const ty0=Math.max(0,~~((mouseY-R)/SC)),ty1=Math.min(TH-1,~~((mouseY+R)/SC));
+  for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++){
+    const wx=tx*SC+SC/2,wy=ty*SC+SC/2;
+    const dx=wx-mouseX,dy=wy-mouseY,d=Math.sqrt(dx*dx+dy*dy);
+    if(d>R||d<1)continue;
+    const hm=(trail[ty*TW+tx]||0)+(subMap[ty*TW+tx]||0);if(hm<0.02)continue;
+    const f2=(1-d/R)*(1-d/R)*str,i2=ty*TW+tx;
+    if(isDown){dispX[i2]+=(dx/d)*f2;dispY[i2]+=(dy/d)*f2;}
+    else if(moving){dispX[i2]+=mdx*f2*0.14;dispY[i2]+=mdy*f2*0.14;}
+    else{dispX[i2]-=(dx/d)*f2*0.45;dispY[i2]-=(dy/d)*f2*0.45;}
+  }
+}
 
 // palettes
 const PALS=[
@@ -901,18 +928,7 @@ function applyBoxFont(){
   }
   tBox.style.left=tBoxX+'px';tBox.style.top=tBoxY+'px';
   tBox.style.width='max-content';
-  // position drag handle as a thin bar above the text box
-  const th2=document.getElementById('tBoxHandle');
-  if(th2&&tBox.style.display!=='none'){
-    const bh=Math.max(tBox.offsetHeight,f.fs*1.2);
-    th2.style.cssText=`position:absolute;left:${tBoxX}px;top:${tBoxY-bh/2-22}px;
-      transform:translate(-50%,0);width:${Math.max(60,tBox.offsetWidth||f.fs*3)}px;
-      height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-      border-radius:4px;backdrop-filter:blur(8px);z-index:9`;
-    th2.innerHTML=th2.dataset.d||'<span style="width:28px;height:2px;background:rgba(255,255,255,.35);border-radius:1px;display:block"></span>';
-    th2.dataset.d=th2.innerHTML;
-  }
+
   tBox.rows=Math.max(1,tBox.value.split('\n').length);
   // update size indicator
   const sv=document.getElementById('szVal');
@@ -951,7 +967,6 @@ function enterTextMode(){
   hitEl.style.pointerEvents='none';
   tBox.style.display='block';
   document.getElementById('tPanel').classList.add('show');
-  const _th=document.getElementById('tBoxHandle');if(_th)_th.style.display='flex';
   applyBoxFont();
   setTimeout(()=>{tBox.focus();positionPanel();},40);
 }
@@ -962,7 +977,6 @@ function exitTextMode(){
   hitEl.style.pointerEvents='';
   tBox.style.display='none';
   document.getElementById('tPanel').classList.remove('show');
-  const _th2=document.getElementById('tBoxHandle');if(_th2)_th2.style.display='none';
 }
 document.getElementById('btxt').addEventListener('click',()=>textMode?exitTextMode():enterTextMode());
 
@@ -979,64 +993,33 @@ tPlane.addEventListener('pointerdown',e=>{
     // collapse panel on mobile so user can see where they placed text
     if(isTouchDev()){
       document.getElementById('tPanel').classList.add('collapsed');
-      document.getElementById('tCollapse').textContent='▸';
+      document.getElementById('tCollapse').textContent='⌄';
     }
   }
 });
 // drag tBox directly (touch-friendly) — also works as desktop fallback
-// tBox drag via a transparent overlay handle (avoids conflict with typing)
-const tBoxHandle=document.createElement('div');
-tBoxHandle.id='tBoxHandle';
-document.getElementById('tPlane').appendChild(tBoxHandle);
-tBoxHandle.addEventListener('pointerdown',e=>{
+// text drag now via panelHandle only
+// panelHandle-bar (center pill) drags the text+panel position
+const panelHandleBar=document.getElementById('panelHandle-bar');
+panelHandleBar.addEventListener('pointerdown',e=>{
   tDragging=true;tDragOX=e.clientX-tBoxX;tDragOY=e.clientY-tBoxY;
-  tBoxHandle.setPointerCapture(e.pointerId);
+  panelHandleBar.setPointerCapture(e.pointerId);
   e.preventDefault();e.stopPropagation();
-  // collapse panel on mobile while dragging so canvas is visible
-  if(isTouchDev()){
-    document.getElementById('tPanel').classList.add('collapsed');
-    document.getElementById('tCollapse').textContent='▸';
-  }
 });
-tBoxHandle.addEventListener('pointermove',e=>{
+panelHandleBar.addEventListener('pointermove',e=>{
   if(!tDragging)return;
   tBoxX=e.clientX-tDragOX;
   tBoxY=e.clientY-tDragOY;
-  if(isTouchDev())tBoxY=Math.min(tBoxY,H*0.52);
   applyBoxFont();
 });
-tBoxHandle.addEventListener('pointerup',()=>{
-  tDragging=false;
-  // re-expand panel on mobile after placing
-  if(isTouchDev()){
-    document.getElementById('tPanel').classList.remove('collapsed');
-    document.getElementById('tCollapse').textContent='▾';
-  }
-});
-// panel handle: desktop = drag textbox; mobile = no-op (panel is fixed bottom sheet)
-const panelHandle=document.getElementById('panelHandle');
-panelHandle.addEventListener('pointerdown',e=>{
-  if(isTouchDev())return; // mobile: use tBoxHandle above the text instead
-  tDragging=true;tDragOX=e.clientX-tBoxX;tDragOY=e.clientY-tBoxY;
-  panelHandle.setPointerCapture(e.pointerId);
-  e.preventDefault();e.stopPropagation();
-});
-panelHandle.addEventListener('pointermove',e=>{
-  if(tDragging){tBoxX=e.clientX-tDragOX;tBoxY=e.clientY-tDragOY;applyBoxFont();}
-});
-panelHandle.addEventListener('pointerup',()=>tDragging=false);
+panelHandleBar.addEventListener('pointerup',()=>tDragging=false);
 tBox.addEventListener('input',applyBoxFont);
 // panel listeners
 ['tSzs','tWgt','tWdth','tSlant'].forEach(id=>{
   const el=document.getElementById(id);if(el)el.addEventListener('input',applyBoxFont);
 });
 document.getElementById('tBloom').addEventListener('click',bloomFromBox);
-function togglePanelCollapse(){
-  document.getElementById('tPanel').classList.toggle('collapsed');
-  document.getElementById('tCollapse').textContent=
-    document.getElementById('tPanel').classList.contains('collapsed')?'▸':'▾';
-}
-document.getElementById('tClose').addEventListener('click',exitTextMode);
+
 function setFont(serif){
   useSerif=serif;
   document.getElementById('tFontSans').classList.toggle('on',!serif);
@@ -1234,7 +1217,7 @@ function drawGrid(){
 function resize(){
   W=innerWidth;H=innerHeight;
   [cvG,cvP,cvA,cvOv].forEach(c=>{c.width=W;c.height=H;});
-  initTrail();initSub();drawGrid();if(overlayOn)redrawOverlay();
+  initTrail();initSub();initDisp();drawGrid();if(overlayOn)redrawOverlay();
 }
 window.addEventListener('resize',resize);
 
@@ -1252,7 +1235,7 @@ document.getElementById('bm').addEventListener('click',()=>{
 document.getElementById('bc').addEventListener('click',()=>{
   agents=[];anyAlive=false;blobs=[];
   [cvP,cvA,cvOv].forEach(c=>{const x=c.getContext('2d');x.globalCompositeOperation='source-over';x.clearRect(0,0,W,H);});
-  initTrail();initSub();ghostText='';if(overlayOn)redrawOverlay();});
+  initTrail();initSub();initDisp();ghostText='';if(overlayOn)redrawOverlay();});
 
 // palette row
 (function(){const row=document.getElementById('palrow');
@@ -1352,26 +1335,23 @@ document.getElementById('bc').addEventListener('click',()=>{
     e.stopPropagation();
     document.getElementById('mExpSub').classList.toggle('hidden');
   });
-  document.getElementById('meSzScr').addEventListener('click',()=>setExportSize(0));
-  document.getElementById('meSz2k').addEventListener('click',()=>setExportSize(2048));
-  document.getElementById('meSz4k').addEventListener('click',()=>setExportSize(4096));
-  document.getElementById('meEBg').addEventListener('click',()=>{doExport(true);closeDrawer();});
-  document.getElementById('meETr').addEventListener('click',()=>{doExport(false);closeDrawer();});
+  document.getElementById('meEBg').addEventListener('click',()=>{doExport(true,false);closeDrawer();});
+  document.getElementById('meETr').addEventListener('click',()=>{doExport(false,false);closeDrawer();});
+  document.getElementById('meHiBg').addEventListener('click',()=>{doExport(true,true);closeDrawer();});
+  document.getElementById('meHiTr').addEventListener('click',()=>{doExport(false,true);closeDrawer();});
 })();
 
 // main loop
 function loop(){
   requestAnimationFrame(loop);frameN++;
   // fade tip layer
-  ctxA.globalAlpha=0.13;ctxA.globalCompositeOperation='destination-out';
+  ctxA.globalAlpha=anyAlive?0.13:0.35;ctxA.globalCompositeOperation="destination-out";
   ctxA.fillRect(0,0,W,H);ctxA.globalCompositeOperation='source-over';ctxA.globalAlpha=1;
-  // blobs — update (paint incrementally to cP) and draw breathing to cA
+  // blobs
   const t=frameN*0.018;
   for(let i=0,n=blobs.length;i<n;i++) blobs[i].update();
   if(frameN%60===0) blobs=blobs.filter(b=>b.alive||b.age<b.maxAge+30);
-  // blob animated breathing on cA (every frame, at low alpha)
   for(let i=0,n=blobs.length;i<n;i++) blobs[i].drawBreath(t);
-
   // agents
   const born=[];
   for(let i=0,n=agents.length;i<n;i++)agents[i].step(born);
@@ -1379,49 +1359,40 @@ function loop(){
   if(frameN%15===0){agents=agents.filter(a=>!a.dead);anyAlive=agents.length>0;}
   if(frameN%2===0)diffuseTrail();
   if(frameN%8===0)decaySub();
+  updateDisp();
   if(!anyAlive&&frameN%4===0)doMouseReact();
+}
+
+
+// Carbon chevron SVG strings
+var _CD=`<svg viewBox='0 0 16 16' width='16' height='16' fill='currentColor'><path d='M8 11L3 6l.7-.7L8 9.6l4.3-4.3.7.7z'/></svg>`;
+var _CU=`<svg viewBox='0 0 16 16' width='16' height='16' fill='currentColor'><path d='M8 5l5 5-.7.7L8 6.4 3.7 10.7 3 10z'/></svg>`;
+function togglePanelCollapse(){
+  document.getElementById('tPanel').classList.toggle('collapsed');
 }
 
 // export
 // export size selection (0=screen, 2048=2K, 4096=4K)
-let exportSize=0; // 0 means use screen resolution
-function setExportSize(s){
-  exportSize=s;
-  ['eSzScr','eSz2k','eSz4k'].forEach(id=>{
-    const b=document.getElementById(id);
-    if(b)b.style.borderColor=
-      (s===0&&id==='eSzScr')||(s===2048&&id==='eSz2k')||(s===4096&&id==='eSz4k')
-      ?'rgba(160,255,60,.7)':'rgba(255,255,255,.08)';
-  });
-}
-setExportSize(0); // default: screen size highlighted
-function doExport(withBg){
-  // compute output dimensions
-  let ew=W,eh=H;
-  if(exportSize>0){
-    const longest=Math.max(W,H);
-    const scale=exportSize/longest;
-    ew=Math.round(W*scale);eh=Math.round(H*scale);
-  }
+// hi-res: use devicePixelRatio to get actual physical pixels
+const HIRES_SCALE=Math.max(2, window.devicePixelRatio||2);
+function doExport(withBg, hiRes){
+  const ew=hiRes?Math.round(W*HIRES_SCALE):W;
+  const eh=hiRes?Math.round(H*HIRES_SCALE):H;
   const e=document.createElement('canvas');e.width=ew;e.height=eh;
   const ec=e.getContext('2d');
   if(withBg){ec.fillStyle=light?'#e8e3d4':'#0f0f0d';ec.fillRect(0,0,ew,eh);}
-  // draw source canvas scaled to output size
   ec.drawImage(cvP,0,0,W,H,0,0,ew,eh);
-  const suffix=(exportSize>0?'-'+(exportSize/1024|0)+'k':'')+(withBg?'':'-transparent');
+  const suffix=(hiRes?'@'+HIRES_SCALE+'x':'')+(withBg?'':'-transparent');
   const a=document.createElement('a');
   a.download='cultured'+suffix+'.png';
   a.href=e.toDataURL('image/png');a.click();
 }
 document.getElementById('bexp').addEventListener('click',e=>{
   e.stopPropagation();document.getElementById('expM').classList.toggle('open');});
-document.getElementById('eSzScr').addEventListener('click',()=>setExportSize(0));
-document.getElementById('eSz2k').addEventListener('click',()=>setExportSize(2048));
-document.getElementById('eSz4k').addEventListener('click',()=>setExportSize(4096));
-document.getElementById('eBg').addEventListener('click',()=>{
-  doExport(true);document.getElementById('expM').classList.remove('open');});
-document.getElementById('eTr').addEventListener('click',()=>{
-  doExport(false);document.getElementById('expM').classList.remove('open');});
+document.getElementById('eBg').addEventListener('click',()=>{doExport(true,false);document.getElementById('expM').classList.remove('open');});
+document.getElementById('eTr').addEventListener('click',()=>{doExport(false,false);document.getElementById('expM').classList.remove('open');});
+document.getElementById('eHiBg').addEventListener('click',()=>{doExport(true,true);document.getElementById('expM').classList.remove('open');});
+document.getElementById('eHiTr').addEventListener('click',()=>{doExport(false,true);document.getElementById('expM').classList.remove('open');});
 document.addEventListener('click',e=>{
   if(!document.getElementById('expW').contains(e.target))
     document.getElementById('expM').classList.remove('open');
